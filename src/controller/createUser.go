@@ -1,23 +1,41 @@
 package controller
 
 import (
-	"fmt"
+	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/rest_err"
+	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/validation"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/model/request"
+	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model"
+)
+
+var (
+	UserDomainInterface model.UserDomainInterface
 )
 
 func CreateUser(c *gin.Context) {
-
+	log.Println("Init CreateUser controller")
 	var userRequest request.UserRequest
 
 	if err := c.ShouldBindJSON(&userRequest); err != nil {
-		restErr := rest_err.NewBadRequestError("invalid request body")
+		errRest := validation.ValidateRequestError(err)
 
-		c.JSON(restErr.Code, restErr)
+		c.JSON(errRest.Code, errRest)
 		return
 	}
 
-	fmt.Println(userRequest)
+	domain := model.NewUserDomain(
+		userRequest.Name,
+		userRequest.Email,
+		userRequest.Password,
+		userRequest.Department,
+		userRequest.Role,
+	)
+
+	if err := domain.CreateUser(); err != nil {
+		c.JSON(err.Code, err)
+	}
+
+	c.String(http.StatusOK, "")
 }
