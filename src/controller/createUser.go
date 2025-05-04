@@ -8,13 +8,14 @@ import (
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/validation"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/model/request"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model"
+	"github.com/kevynlohan05/meu-primeiro-crud-go/src/view"
 )
 
 var (
 	UserDomainInterface model.UserDomainInterface
 )
 
-func CreateUser(c *gin.Context) {
+func (uc *userControllerInterface) CreateUser(c *gin.Context) {
 	log.Println("Init CreateUser controller")
 	var userRequest request.UserRequest
 
@@ -33,9 +34,9 @@ func CreateUser(c *gin.Context) {
 		userRequest.Role,
 	)
 
-	if err := domain.CreateUser(); err != nil {
+	if err := uc.service.CreateUser(domain); err != nil {
 		c.JSON(err.Code, err)
 	}
 
-	c.String(http.StatusOK, "")
+	c.JSON(http.StatusOK, view.ConvertUserDomainToResponse(domain))
 }

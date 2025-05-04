@@ -2,5 +2,5 @@ package controller
 
 import "github.com/gin-gonic/gin"
 
-func UpdateTicket(c *gin.Context) {
+func (tc *ticketControllerInterface) UpdateTicket(c *gin.Context) {
 }

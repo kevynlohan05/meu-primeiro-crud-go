@@ -2,6 +2,6 @@ package controller
 
 import "github.com/gin-gonic/gin"
 
-func DeleteTicket(c *gin.Context) {
+func (tc *ticketControllerInterface) DeleteTicket(c *gin.Context) {
 
 }

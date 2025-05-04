@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/kevynlohan05/meu-primeiro-crud-go/src/controller"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/routes"
+	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model/service"
 )
 
 func main() {
@@ -15,11 +15,17 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	fmt.Println(os.Getenv("TEST"))
+
+	//Init depedencies
+	userService := service.NewUserDomainService()
+	userController := controller.NewUserControllerInterface(userService)
+
+	ticketService := service.NewTicketDomainService()
+	ticketController := controller.NewTicketControllerInterface(ticketService)
 
 	router := gin.Default()
 
-	routes.InitRoutes(&router.RouterGroup)
+	routes.InitRoutes(&router.RouterGroup, userController, ticketController)
 
 	if err := router.Run(":8080"); err != nil {
 		log.Fatal(err)

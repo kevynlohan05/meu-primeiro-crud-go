@@ -1,17 +1,22 @@
 package controller
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/validation"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/model/request"
-	"github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/model/response"
+	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model"
+	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model/service"
+	"github.com/kevynlohan05/meu-primeiro-crud-go/src/view"
 )
 
-func CreateTicket(c *gin.Context) {
+var (
+	TicketDomainInterface model.TicketDomainInterface
+)
+
+func (tc *ticketControllerInterface) CreateTicket(c *gin.Context) {
 
 	log.Println("Init createTicket controller")
 	var ticketRequest request.TicketRequest
@@ -23,13 +28,20 @@ func CreateTicket(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(ticketRequest)
-	response := response.TicketResponse{
-		Title:       ticketRequest.Title,
-		Description: ticketRequest.Description,
-		Priority:    ticketRequest.Priority,
-		RequestType: ticketRequest.RequestType,
+	domain := model.NewTicketDomain(
+		ticketRequest.Title,
+		ticketRequest.Description,
+		ticketRequest.RequestType,
+		ticketRequest.Priority,
+		ticketRequest.AttachmentURL,
+	)
+
+	service := service.NewTicketDomainService()
+
+	if err := service.CreateTicket(domain); err != nil {
+		c.JSON(err.Code, err)
+		return
 	}
 
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, view.ConvertTicketDomainToResponse(domain))
 }
