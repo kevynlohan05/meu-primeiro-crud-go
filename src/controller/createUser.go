@@ -34,9 +34,18 @@ func (uc *userControllerInterface) CreateUser(c *gin.Context) {
 		userRequest.Role,
 	)
 
-	if err := uc.service.CreateUser(domain); err != nil {
+	domainResult, err := uc.service.CreateUser(domain)
+	if err != nil {
+		log.Println("Error creating user:", err)
 		c.JSON(err.Code, err)
+		return
 	}
 
-	c.JSON(http.StatusOK, view.ConvertUserDomainToResponse(domain))
+	if domainResult == nil {
+		log.Println("Error: domainResult is nil")
+		c.JSON(http.StatusInternalServerError, "User creation failed, domainResult is nil")
+		return
+	}
+
+	c.JSON(http.StatusOK, view.ConvertUserDomainToResponse(domainResult))
 }

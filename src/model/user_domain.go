@@ -11,19 +11,35 @@ type UserDomainInterface interface {
 	GetPassword() string
 	GetDepartment() string
 	GetRole() string
+
+	GetID() string
+
+	SetID(string)
+
 	EncryptPassword()
 }
 
 func NewUserDomain(name, email, password, department, role string) UserDomainInterface {
-	return &userDomain{name, email, password, department, role}
+	return &userDomain{
+		name:       name,
+		email:      email,
+		password:   password,
+		department: department,
+		role:       role,
+	}
 }
 
 type userDomain struct {
+	iD         string
 	name       string
 	email      string
 	password   string
 	department string
 	role       string
+}
+
+func (ud *userDomain) GetID() string {
+	return ud.iD
 }
 
 func (ud *userDomain) GetName() string {
@@ -43,6 +59,10 @@ func (ud *userDomain) GetDepartment() string {
 
 func (ud *userDomain) GetRole() string {
 	return ud.role
+}
+
+func (ud *userDomain) SetID(id string) {
+	ud.iD = id
 }
 
 func (ud *userDomain) EncryptPassword() {

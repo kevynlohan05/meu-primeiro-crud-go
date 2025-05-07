@@ -7,7 +7,7 @@ import (
 
 func ConvertUserDomainToResponse(userDomain model.UserDomainInterface) response.UserResponse {
 	return response.UserResponse{
-		ID:         "",
+		ID:         userDomain.GetID(),
 		Name:       userDomain.GetName(),
 		Email:      userDomain.GetEmail(),
 		Department: userDomain.GetDepartment(),
@@ -17,7 +17,7 @@ func ConvertUserDomainToResponse(userDomain model.UserDomainInterface) response.
 
 func ConvertTicketDomainToResponse(ticketDomain model.TicketDomainInterface) response.TicketResponse {
 	return response.TicketResponse{
-		ID:            "",
+		ID:            ticketDomain.GetID(),
 		Title:         ticketDomain.GetTitle(),
 		Description:   ticketDomain.GetDescription(),
 		Status:        "Em andamento",

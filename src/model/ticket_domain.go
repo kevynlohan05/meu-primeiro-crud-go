@@ -6,18 +6,36 @@ type TicketDomainInterface interface {
 	GetRequestType() string
 	GetPriority() string
 	GetAttachmentURL() string
+	GetID() string
+
+	SetID(string)
 }
 
 func NewTicketDomain(title, description, requestType, priority, attachmentURL string) TicketDomainInterface {
-	return &ticketDomain{title, description, requestType, priority, attachmentURL}
+	return &ticketDomain{
+		title:         title,
+		description:   description,
+		requestType:   requestType,
+		priority:      priority,
+		attachmentURL: attachmentURL,
+	}
 }
 
 type ticketDomain struct {
+	iD            string
 	title         string
 	description   string
 	requestType   string
 	priority      string
 	attachmentURL string
+}
+
+func (td *ticketDomain) SetID(id string) {
+	td.iD = id
+}
+
+func (td *ticketDomain) GetID() string {
+	return td.iD
 }
 
 func (td *ticketDomain) GetTitle() string {

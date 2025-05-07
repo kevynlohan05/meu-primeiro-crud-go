@@ -8,7 +8,6 @@ import (
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/validation"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/model/request"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model"
-	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model/service"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/view"
 )
 
@@ -36,12 +35,18 @@ func (tc *ticketControllerInterface) CreateTicket(c *gin.Context) {
 		ticketRequest.AttachmentURL,
 	)
 
-	service := service.NewTicketDomainService()
-
-	if err := service.CreateTicket(domain); err != nil {
+	domainResult, err := tc.service.CreateTicket(domain)
+	if err != nil {
+		log.Println("Error creating ticket:", err)
 		c.JSON(err.Code, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, view.ConvertTicketDomainToResponse(domain))
+	if domainResult == nil {
+		log.Println("Error: domainResult is nil")
+		c.JSON(http.StatusInternalServerError, "Ticket creation failed, domainResult is nil")
+		return
+	}
+
+	c.JSON(http.StatusOK, view.ConvertTicketDomainToResponse(domainResult))
 }
