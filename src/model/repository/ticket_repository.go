@@ -6,6 +6,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+const (
+	MONGODB_TICKET_COLLECTION = "MONGODB_TICKET_COLLECTION"
+)
+
 func NewTicketRepository(database *mongo.Database) TicketRepository {
 	return &ticketRepository{
 		database,
@@ -19,4 +23,8 @@ type ticketRepository struct {
 
 type TicketRepository interface {
 	CreateTicket(ticketDomain model.TicketDomainInterface) (model.TicketDomainInterface, *rest_err.RestErr)
+
+	FindTicketByEmail(email string) (model.TicketDomainInterface, *rest_err.RestErr)
+
+	FindTicketById(id string) (model.TicketDomainInterface, *rest_err.RestErr)
 }

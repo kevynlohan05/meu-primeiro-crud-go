@@ -7,7 +7,7 @@ import (
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model"
 )
 
-func (ud *userDomainService) CreateUser(userDomain model.UserDomainInterface) (model.UserDomainInterface, *rest_err.RestErr) {
+func (ud *userDomainService) CreateUserServices(userDomain model.UserDomainInterface) (model.UserDomainInterface, *rest_err.RestErr) {
 	log.Println("Encrypting password")
 	userDomain.EncryptPassword()
 

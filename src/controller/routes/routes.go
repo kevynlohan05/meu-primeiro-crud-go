@@ -15,6 +15,7 @@ func InitRoutes(r *gin.RouterGroup, userController controller.UserControllerInte
 
 	r.POST("/ticket/createTicket", ticketController.CreateTicket)
 	r.GET("/ticket/getTicketById/:ticketId", ticketController.FindTicketById)
+	r.GET("/ticket/getTicketByEmail/:ticketEmail", ticketController.FindTicketByEmail)
 	r.PUT("/ticket/updateTicket/:ticketId", ticketController.UpdateTicket)
 	r.DELETE("/ticket/deleteTicket/:ticketId", ticketController.DeleteTicket)
 }

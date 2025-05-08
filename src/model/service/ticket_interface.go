@@ -18,5 +18,6 @@ type TicketDomainService interface {
 	CreateTicket(model.TicketDomainInterface) (model.TicketDomainInterface, *rest_err.RestErr)
 	UpdateTicket(string, model.TicketDomainInterface) *rest_err.RestErr
 	DeleteTicket(string) *rest_err.RestErr
-	FindTicketById(string) (*model.TicketDomainInterface, *rest_err.RestErr)
+	FindTicketByIdServices(id string) (model.TicketDomainInterface, *rest_err.RestErr)
+	FindTicketByEmailServices(email string) (model.TicketDomainInterface, *rest_err.RestErr)
 }

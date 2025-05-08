@@ -11,10 +11,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-const (
-	MONGODB_TICKET_COLLECTION = "MONGODB_TICKET_COLLECTION"
-)
-
 func (tr *ticketRepository) CreateTicket(ticketDomain model.TicketDomainInterface) (model.TicketDomainInterface, *rest_err.RestErr) {
 	collection_name := os.Getenv(MONGODB_TICKET_COLLECTION)
 	collection := tr.databaseConnection.Collection(collection_name)

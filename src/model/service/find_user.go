@@ -5,6 +5,12 @@ import (
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model"
 )
 
-func (*userDomainService) FindUser(string) (*model.UserDomainInterface, *rest_err.RestErr) {
-	return nil, nil
+func (ud *userDomainService) FindUserByIdServices(id string) (model.UserDomainInterface, *rest_err.RestErr) {
+
+	return ud.userRepository.FindUserById(id)
+}
+
+func (ud *userDomainService) FindUserByEmailServices(email string) (model.UserDomainInterface, *rest_err.RestErr) {
+
+	return ud.userRepository.FindUserByEmail(email)
 }
