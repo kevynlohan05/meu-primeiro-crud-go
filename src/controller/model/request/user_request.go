@@ -7,3 +7,8 @@ type UserRequest struct {
 	Department string `json:"department" binding:"required"`
 	Role       string `json:"role" binding:"required"` // "admin" ou "user"
 }
+
+type UserUpdateRequest struct {
+	Name       string `json:"name" binding:"omitempty,min=3,max=100"`
+	Department string `json:"department" binding:"omitempty"`
+}

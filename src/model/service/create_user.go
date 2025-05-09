@@ -8,6 +8,13 @@ import (
 )
 
 func (ud *userDomainService) CreateUserServices(userDomain model.UserDomainInterface) (model.UserDomainInterface, *rest_err.RestErr) {
+
+	user, _ := ud.FindUserByEmailServices(userDomain.GetEmail())
+	if user != nil {
+		log.Println("User already exists")
+		return nil, rest_err.NewBadRequestError("Email already registered")
+	}
+
 	log.Println("Encrypting password")
 	userDomain.EncryptPassword()
 

@@ -20,3 +20,13 @@ func NewTicketDomain(title, description, requestType, priority, attachmentURL st
 		attachmentURL: attachmentURL,
 	}
 }
+
+func NewTicketUpdateDomain(title, description, requestType, priority, attachmentURL string) TicketDomainInterface {
+	return &ticketDomain{
+		title:         title,
+		description:   description,
+		requestType:   requestType,
+		priority:      priority,
+		attachmentURL: attachmentURL,
+	}
+}

@@ -24,6 +24,10 @@ type ticketRepository struct {
 type TicketRepository interface {
 	CreateTicket(ticketDomain model.TicketDomainInterface) (model.TicketDomainInterface, *rest_err.RestErr)
 
+	UpdateTicket(ticketId string, ticketDomain model.TicketDomainInterface) *rest_err.RestErr
+
+	DeleteTicket(ticketId string) *rest_err.RestErr
+
 	FindTicketByEmail(email string) (model.TicketDomainInterface, *rest_err.RestErr)
 
 	FindTicketById(id string) (model.TicketDomainInterface, *rest_err.RestErr)

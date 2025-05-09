@@ -25,10 +25,10 @@ func (tr *ticketRepository) CreateTicket(ticketDomain model.TicketDomainInterfac
 		return nil, rest_err.NewInternalServerError("Failed to convert domain to entity")
 	}
 
-	log.Println("Inserting user into MongoDB")
+	log.Println("Inserting ticket into MongoDB")
 	result, err := collection.InsertOne(context.Background(), value)
 	if err != nil {
-		log.Println("Error inserting user into MongoDB:", err)
+		log.Println("Error inserting ticket into MongoDB:", err)
 		return nil, rest_err.NewInternalServerError(err.Error())
 
 	}
