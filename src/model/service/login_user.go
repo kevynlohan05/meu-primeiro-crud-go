@@ -7,7 +7,7 @@ import (
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model"
 )
 
-func (ud *userDomainService) LoginUserServices(userDomain model.UserDomainInterface) (model.UserDomainInterface, *rest_err.RestErr) {
+func (ud *userDomainService) LoginUserServices(userDomain model.UserDomainInterface) (model.UserDomainInterface, string, *rest_err.RestErr) {
 
 	log.Println("Encrypting password")
 	userDomain.EncryptPassword()
@@ -15,10 +15,15 @@ func (ud *userDomainService) LoginUserServices(userDomain model.UserDomainInterf
 	user, err := ud.findUserByEmailAndPasswordServices(userDomain.GetEmail(), userDomain.GetPassword())
 	if err != nil {
 		log.Println("User already exists")
-		return nil, err
+		return nil, "", err
+	}
+
+	token, err := user.GenerateToken()
+	if err != nil {
+		return nil, "", err
 	}
 
 	log.Println("Login user successfully")
 
-	return user, nil
+	return user, token, nil
 }
