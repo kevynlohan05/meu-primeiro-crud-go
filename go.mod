@@ -11,7 +11,7 @@ require (
 	go.mongodb.org/mongo-driver v1.17.3
 )
 
-require github.com/golang-jwt/jwt v3.2.2+incompatible 
+require github.com/golang-jwt/jwt v3.2.2+incompatible
 
 require (
 	github.com/bytedance/sonic v1.13.2 // indirect

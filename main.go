@@ -7,10 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/database/mongodb"
-	"github.com/kevynlohan05/meu-primeiro-crud-go/src/controller"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/routes"
-	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model/repository"
-	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model/service"
+	controllerTicket "github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/ticket"
+	controllerUser "github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/user"
+	repositoryTicket "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket/repository"
+	ticketService "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket/service"
+	repositoryUser "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/user/repository"
+	userService "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/user/service"
 )
 
 func main() {
@@ -26,13 +29,13 @@ func main() {
 	}
 
 	//Init depedencies
-	repoUser := repository.NewUserRepository(database)
-	userService := service.NewUserDomainService(repoUser)
-	userController := controller.NewUserControllerInterface(userService)
+	repoUser := repositoryUser.NewUserRepository(database)
+	userServiceInstace := userService.NewUserDomainService(repoUser)
+	userController := controllerUser.NewUserControllerInterface(userServiceInstace)
 
-	repoTicket := repository.NewTicketRepository(database)
-	ticketService := service.NewTicketDomainService(repoTicket)
-	ticketController := controller.NewTicketControllerInterface(ticketService)
+	repoTicket := repositoryTicket.NewTicketRepository(database)
+	ticketServiceInstance := ticketService.NewTicketDomainService(repoTicket)
+	ticketController := controllerTicket.NewTicketControllerInterface(ticketServiceInstance)
 
 	router := gin.Default()
 

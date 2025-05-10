@@ -2,10 +2,11 @@ package view
 
 import (
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/model/response"
-	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model"
+	ticketModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket"
+	userModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/user"
 )
 
-func ConvertUserDomainToResponse(userDomain model.UserDomainInterface) response.UserResponse {
+func ConvertUserDomainToResponse(userDomain userModel.UserDomainInterface) response.UserResponse {
 	return response.UserResponse{
 		ID:         userDomain.GetID(),
 		Name:       userDomain.GetName(),
@@ -15,7 +16,7 @@ func ConvertUserDomainToResponse(userDomain model.UserDomainInterface) response.
 	}
 }
 
-func ConvertTicketDomainToResponse(ticketDomain model.TicketDomainInterface) response.TicketResponse {
+func ConvertTicketDomainToResponse(ticketDomain ticketModel.TicketDomainInterface) response.TicketResponse {
 	return response.TicketResponse{
 		ID:            ticketDomain.GetID(),
 		Title:         ticketDomain.GetTitle(),
