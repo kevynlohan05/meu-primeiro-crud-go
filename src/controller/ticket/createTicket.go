@@ -33,6 +33,7 @@ func (tc *ticketControllerInterface) CreateTicket(c *gin.Context) {
 		ticketRequest.RequestType,
 		ticketRequest.Priority,
 		ticketRequest.AttachmentURL,
+		ticketRequest.User,
 	)
 
 	domainResult, err := tc.service.CreateTicket(domain)

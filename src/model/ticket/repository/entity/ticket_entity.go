@@ -9,4 +9,5 @@ type TicketEntity struct {
 	RequestType   string             `bson:"request_type ,omitempty"`
 	Priority      string             `bson:"priority ,omitempty"`
 	AttachmentURL string             `bson:"attachment_url ,omitempty"`
+	UserEmail     string             `bson:"user_email ,omitempty"`
 }

@@ -35,6 +35,7 @@ func ConvertTicketDomainToEntity(domain ticketModel.TicketDomainInterface) *tick
 		RequestType:   domain.GetRequestType(),
 		Priority:      domain.GetPriority(),
 		AttachmentURL: domain.GetAttachmentURL(),
+		UserEmail:     domain.GetUserEmail(),
 	}
 
 	// Logando o que foi convertido para a entidade

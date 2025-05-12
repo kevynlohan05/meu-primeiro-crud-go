@@ -7,17 +7,19 @@ type TicketDomainInterface interface {
 	GetPriority() string
 	GetAttachmentURL() string
 	GetID() string
+	GetUserEmail() string
 
 	SetID(string)
 }
 
-func NewTicketDomain(title, description, requestType, priority, attachmentURL string) TicketDomainInterface {
+func NewTicketDomain(title, description, requestType, priority, attachmentURL, userEmail string) TicketDomainInterface {
 	return &ticketDomain{
 		title:         title,
 		description:   description,
 		requestType:   requestType,
 		priority:      priority,
 		attachmentURL: attachmentURL,
+		userEmail:     userEmail,
 	}
 }
 

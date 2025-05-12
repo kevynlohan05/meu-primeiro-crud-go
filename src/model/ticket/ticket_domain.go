@@ -7,10 +7,15 @@ type ticketDomain struct {
 	requestType   string
 	priority      string
 	attachmentURL string
+	userEmail     string
 }
 
 func (td *ticketDomain) SetID(id string) {
 	td.iD = id
+}
+
+func (td *ticketDomain) GetUserEmail() string {
+	return td.userEmail
 }
 
 func (td *ticketDomain) GetID() string {

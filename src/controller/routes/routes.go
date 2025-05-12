@@ -17,7 +17,7 @@ func InitRoutes(r *gin.RouterGroup, userController controllerUser.UserController
 
 	r.POST("/user/login", userController.LoginUser)
 
-	r.POST("/ticket/createTicket", ticketController.CreateTicket)
+	r.POST("/ticket/createTicket", userModel.VerifyTokenMiddleware, ticketController.CreateTicket)
 	r.GET("/ticket/getTicketById/:ticketId", ticketController.FindTicketById)
 	r.GET("/ticket/getTicketByEmail/:ticketEmail", ticketController.FindTicketByEmail)
 	r.PUT("/ticket/updateTicket/:ticketId", ticketController.UpdateTicket)
