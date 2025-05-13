@@ -13,13 +13,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func (tr *ticketRepository) FindTicketByEmail(email string) (ticketModel.TicketDomainInterface, *rest_err.RestErr) {
+func (tr *ticketRepository) FindTicketById(id string) (ticketModel.TicketDomainInterface, *rest_err.RestErr) {
 	collection_name := os.Getenv(MONGODB_TICKET_COLLECTION)
 	collection := tr.databaseConnection.Collection(collection_name)
 
 	ticketEntity := &ticketEntity.TicketEntity{}
 
-	filter := bson.D{{Key: "email", Value: email}}
+	objectId, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.D{{Key: "_id", Value: objectId}}
 	err := collection.FindOne(context.Background(), filter).Decode(ticketEntity)
 
 	if err != nil {
@@ -35,14 +36,13 @@ func (tr *ticketRepository) FindTicketByEmail(email string) (ticketModel.TicketD
 	return converter.ConvertTicketEntityToDomain(*ticketEntity), nil
 }
 
-func (tr *ticketRepository) FindTicketById(id string) (ticketModel.TicketDomainInterface, *rest_err.RestErr) {
+func (tr *ticketRepository) FindTicketByEmail(email string) (ticketModel.TicketDomainInterface, *rest_err.RestErr) {
 	collection_name := os.Getenv(MONGODB_TICKET_COLLECTION)
 	collection := tr.databaseConnection.Collection(collection_name)
 
 	ticketEntity := &ticketEntity.TicketEntity{}
 
-	objectId, _ := primitive.ObjectIDFromHex(id)
-	filter := bson.D{{Key: "_id", Value: objectId}}
+	filter := bson.D{{Key: "email", Value: email}}
 	err := collection.FindOne(context.Background(), filter).Decode(ticketEntity)
 
 	if err != nil {

@@ -3,19 +3,42 @@ package model
 type ticketDomain struct {
 	iD            string
 	title         string
+	requestUser   string
+	sector        string
 	description   string
 	requestType   string
 	priority      string
 	attachmentURL string
-	userEmail     string
+	asanaTaskID   string
+	status        string
 }
 
 func (td *ticketDomain) SetID(id string) {
 	td.iD = id
 }
 
-func (td *ticketDomain) GetUserEmail() string {
-	return td.userEmail
+func (td *ticketDomain) SetStatus(status string) {
+	td.status = status
+}
+
+func (td *ticketDomain) GetStatus() string {
+	return td.status
+}
+
+func (td *ticketDomain) SetAsanaTaskID(asanaTaskID string) {
+	td.asanaTaskID = asanaTaskID
+}
+
+func (td *ticketDomain) GetAsanaTaskID() string {
+	return td.asanaTaskID
+}
+
+func (td *ticketDomain) GetRequestUser() string {
+	return td.requestUser
+}
+
+func (td *ticketDomain) GetSector() string {
+	return td.sector
 }
 
 func (td *ticketDomain) GetID() string {

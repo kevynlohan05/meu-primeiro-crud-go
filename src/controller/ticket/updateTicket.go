@@ -36,6 +36,7 @@ func (tc *ticketControllerInterface) UpdateTicket(c *gin.Context) {
 		ticketRequest.RequestType,
 		ticketRequest.Priority,
 		ticketRequest.AttachmentURL,
+		ticketRequest.Status,
 	)
 
 	err := tc.service.UpdateTicket(ticketId, domain)

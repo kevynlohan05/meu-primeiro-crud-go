@@ -29,11 +29,12 @@ func (tc *ticketControllerInterface) CreateTicket(c *gin.Context) {
 
 	domain := ticketModel.NewTicketDomain(
 		ticketRequest.Title,
+		ticketRequest.RequestUser,
+		ticketRequest.Sector,
 		ticketRequest.Description,
 		ticketRequest.RequestType,
 		ticketRequest.Priority,
 		ticketRequest.AttachmentURL,
-		ticketRequest.User,
 	)
 
 	domainResult, err := tc.service.CreateTicket(domain)

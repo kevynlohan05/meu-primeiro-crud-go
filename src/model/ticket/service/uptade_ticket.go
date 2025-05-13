@@ -20,3 +20,17 @@ func (td *ticketDomainService) UpdateTicket(ticketId string, ticketDomain ticket
 
 	return nil
 }
+
+func (td *ticketDomainService) UpdateAsanaTaskID(ticketId string, taskID string) *rest_err.RestErr {
+	log.Println("Calling repository to update asana id ticket")
+
+	err := td.ticketRepository.UpdateAsanaTaskID(ticketId, taskID)
+	if err != nil {
+		log.Println("Error in repository:", err)
+		return err
+	}
+
+	log.Println("Ticket update successfully")
+
+	return nil
+}

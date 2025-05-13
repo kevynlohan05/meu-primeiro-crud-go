@@ -32,14 +32,16 @@ func ConvertTicketEntityToDomain(entity ticketEntity.TicketEntity) ticketModel.T
 	// Criando o domínio a partir da entidade
 	domain := ticketModel.NewTicketDomain(
 		entity.Title,
+		entity.RequestUser,
+		entity.Sector,
 		entity.Description,
 		entity.RequestType,
 		entity.Priority,
 		entity.AttachmentURL,
-		entity.UserEmail,
 	)
 
 	domain.SetID(entity.ID.Hex())
+	domain.SetAsanaTaskID(entity.AsanaTaskID)
 
 	// Logando o domínio após a definição do ID
 	log.Println("Domain after setting ID:")

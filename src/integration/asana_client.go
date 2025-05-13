@@ -34,8 +34,10 @@ func CreateAsanaTask(ticket ticketModel.TicketDomainInterface) (string, error) {
 
 	// Monta a descrição completa com todas as informações
 	notes := fmt.Sprintf(
-		"Solicitante: %s\n\nDescrição: \n\n%s\n\nDepartamento: %s\n\nPrioridade: %s\n\nAnexo: %s",
-		ticket.GetUserEmail(),
+		"Título da solicitação: \n%s\n\nNome do solicitante: \n%s\n\nSetor do solicitante: \n%s\n\nDetalhe da solicitação: \n%s\n\nTipo de solicitação: \n%s\n\nPrioridade: \n%s\n\nAnexo: \n%s",
+		ticket.GetTitle(),
+		ticket.GetRequestUser(),
+		ticket.GetSector(),
 		ticket.GetDescription(),
 		ticket.GetRequestType(),
 		ticket.GetPriority(),
@@ -85,4 +87,52 @@ func CreateAsanaTask(ticket ticketModel.TicketDomainInterface) (string, error) {
 	taskID := data["gid"].(string)
 
 	return taskID, nil
+}
+
+type AsanaTaskResponse struct {
+	Data struct {
+		Gid      string `json:"gid"`
+		Name     string `json:"name"`
+		Notes    string `json:"notes"`
+		Projects []struct {
+			Gid  string `json:"gid"`
+			Name string `json:"name"`
+		} `json:"projects"`
+		Memberships []struct {
+			Section struct {
+				Gid  string `json:"gid"`
+				Name string `json:"name"`
+			} `json:"section"`
+		} `json:"memberships"`
+	} `json:"data"`
+}
+
+func GetAsanaTaskDetails(taskID string) (string, []string, error) {
+	token := os.Getenv("ASANA_ACCESS_TOKEN")
+
+	req, _ := http.NewRequest("GET", "https://app.asana.com/api/1.0/tasks/"+taskID, nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", nil, err
+	}
+	defer resp.Body.Close()
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		return "", nil, fmt.Errorf("erro ao buscar tarefa: %s", string(body))
+	}
+
+	var result AsanaTaskResponse
+	json.Unmarshal(body, &result)
+
+	// Nome da seção atual
+	status := "Indefinido"
+	if len(result.Data.Memberships) > 0 {
+		status = result.Data.Memberships[0].Section.Name
+	}
+
+	return status, nil, nil
 }

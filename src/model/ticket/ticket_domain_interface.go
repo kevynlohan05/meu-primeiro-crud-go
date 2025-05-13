@@ -1,34 +1,41 @@
 package model
 
 type TicketDomainInterface interface {
+	GetID() string
 	GetTitle() string
+	GetRequestUser() string
+	GetSector() string
 	GetDescription() string
 	GetRequestType() string
 	GetPriority() string
 	GetAttachmentURL() string
-	GetID() string
-	GetUserEmail() string
+	GetAsanaTaskID() string
+	GetStatus() string
 
+	SetStatus(string)
+	SetAsanaTaskID(string)
 	SetID(string)
 }
 
-func NewTicketDomain(title, description, requestType, priority, attachmentURL, userEmail string) TicketDomainInterface {
+func NewTicketDomain(title, requestUser, sector, description, requestType, priority, attachmentURL string) TicketDomainInterface {
 	return &ticketDomain{
 		title:         title,
+		requestUser:   requestUser,
+		sector:        sector,
 		description:   description,
 		requestType:   requestType,
 		priority:      priority,
 		attachmentURL: attachmentURL,
-		userEmail:     userEmail,
 	}
 }
 
-func NewTicketUpdateDomain(title, description, requestType, priority, attachmentURL string) TicketDomainInterface {
+func NewTicketUpdateDomain(title, description, requestType, priority, attachmentURL, status string) TicketDomainInterface {
 	return &ticketDomain{
 		title:         title,
 		description:   description,
 		requestType:   requestType,
 		priority:      priority,
 		attachmentURL: attachmentURL,
+		status:        status,
 	}
 }

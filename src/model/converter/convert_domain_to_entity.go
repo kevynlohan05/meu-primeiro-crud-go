@@ -31,11 +31,13 @@ func ConvertTicketDomainToEntity(domain ticketModel.TicketDomainInterface) *tick
 	// Criando a entidade
 	entity := &ticketEntity.TicketEntity{
 		Title:         domain.GetTitle(),
+		RequestUser:   domain.GetRequestUser(),
+		Sector:        domain.GetSector(),
 		Description:   domain.GetDescription(),
 		RequestType:   domain.GetRequestType(),
 		Priority:      domain.GetPriority(),
 		AttachmentURL: domain.GetAttachmentURL(),
-		UserEmail:     domain.GetUserEmail(),
+		Status:        domain.GetStatus(),
 	}
 
 	// Logando o que foi convertido para a entidade

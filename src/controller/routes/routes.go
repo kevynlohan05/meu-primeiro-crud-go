@@ -12,14 +12,14 @@ func InitRoutes(r *gin.RouterGroup, userController controllerUser.UserController
 	r.GET("/user/getUserById/:userId", userModel.VerifyTokenMiddleware, userController.FindUserById)
 	r.GET("/user/getUserByEmail/:userEmail", userModel.VerifyTokenMiddleware, userController.FindUserByEmail)
 	r.POST("/user/createUser", userController.CreateUser)
-	r.PUT("/user/updateUser/:userId", userController.UpdateUser)
-	r.DELETE("/user/deleteUser/:userId", userController.DeleteUser)
+	r.PUT("/user/updateUser/:userId", userModel.VerifyTokenMiddleware, userController.UpdateUser)
+	r.DELETE("/user/deleteUser/:userId", userModel.VerifyTokenMiddleware, userController.DeleteUser)
 
 	r.POST("/user/login", userController.LoginUser)
 
 	r.POST("/ticket/createTicket", userModel.VerifyTokenMiddleware, ticketController.CreateTicket)
-	r.GET("/ticket/getTicketById/:ticketId", ticketController.FindTicketById)
-	r.GET("/ticket/getTicketByEmail/:ticketEmail", ticketController.FindTicketByEmail)
-	r.PUT("/ticket/updateTicket/:ticketId", ticketController.UpdateTicket)
-	r.DELETE("/ticket/deleteTicket/:ticketId", ticketController.DeleteTicket)
+	r.GET("/ticket/getTicketById/:ticketId", userModel.VerifyTokenMiddleware, ticketController.FindTicketById)
+	r.GET("/ticket/getTicketByEmail/:ticketEmail", userModel.VerifyTokenMiddleware, ticketController.FindTicketByEmail)
+	r.PUT("/ticket/updateTicket/:ticketId", userModel.VerifyTokenMiddleware, ticketController.UpdateTicket)
+	r.DELETE("/ticket/deleteTicket/:ticketId", userModel.VerifyTokenMiddleware, ticketController.DeleteTicket)
 }

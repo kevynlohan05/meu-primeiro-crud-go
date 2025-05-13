@@ -19,11 +19,14 @@ func ConvertUserDomainToResponse(userDomain userModel.UserDomainInterface) respo
 func ConvertTicketDomainToResponse(ticketDomain ticketModel.TicketDomainInterface) response.TicketResponse {
 	return response.TicketResponse{
 		ID:            ticketDomain.GetID(),
+		Status:        ticketDomain.GetStatus(),
 		Title:         ticketDomain.GetTitle(),
+		RequestUser:   ticketDomain.GetRequestUser(),
+		Sector:        ticketDomain.GetSector(),
 		Description:   ticketDomain.GetDescription(),
-		Status:        "Em andamento",
 		RequestType:   ticketDomain.GetRequestType(),
 		Priority:      ticketDomain.GetPriority(),
 		AttachmentURL: ticketDomain.GetAttachmentURL(),
+		AsanaTaskID:   ticketDomain.GetAsanaTaskID(),
 	}
 }
