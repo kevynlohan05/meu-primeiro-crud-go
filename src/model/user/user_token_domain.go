@@ -94,7 +94,7 @@ func VerifyTokenMiddleware(c *gin.Context) {
 		return
 	}
 
-	_, ok := token.Claims.(jwt.MapClaims)
+	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
 		errRest := rest_err.NewUnauthorizedError("invalid token")
 		c.JSON(errRest.Code, errRest)
@@ -102,4 +102,25 @@ func VerifyTokenMiddleware(c *gin.Context) {
 		return
 	}
 
+	userID := claims["id"].(string)
+	userEmail := claims["email"].(string)
+	userRole := claims["role"].(string)
+
+	// Salvando no contexto para uso posterior
+	c.Set("userID", userID)
+	c.Set("userEmail", userEmail)
+	c.Set("role", userRole)
+
+	c.Next()
+}
+
+func AdminOnlyMiddleware(c *gin.Context) {
+	role, exists := c.Get("role")
+	if !exists || role != "admin" {
+		errRest := rest_err.NewUnauthorizedError("Acesso permitido apenas para administradores")
+		c.JSON(errRest.Code, errRest)
+		c.Abort()
+		return
+	}
+	c.Next()
 }
