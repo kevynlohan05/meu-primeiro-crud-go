@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/rest_err"
+	"github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/model/response"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/view"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -28,21 +28,42 @@ func (tc *ticketControllerInterface) FindTicketById(c *gin.Context) {
 	c.JSON(http.StatusOK, view.ConvertTicketDomainToResponse(ticketDomain))
 }
 
-func (tc *ticketControllerInterface) FindTicketByEmail(c *gin.Context) {
-
+func (tc *ticketControllerInterface) FindAllTicketsByUser(c *gin.Context) {
 	ticketEmail := c.Param("ticketEmail")
 
-	if _, err := uuid.Parse(ticketEmail); err != nil {
-		errorMessage := rest_err.NewBadRequestError("Invalid ticket Email format")
+	// Validação simples de e-mail (opcional)
+	if ticketEmail == "" {
+		errorMessage := rest_err.NewBadRequestError("Email do solicitante é obrigatório")
 		c.JSON(errorMessage.Code, errorMessage)
 		return
 	}
 
-	ticketDomain, err := tc.service.FindTicketByEmailServices(ticketEmail)
+	tickets, err := tc.service.FindAllTicketsByUser(ticketEmail)
 	if err != nil {
 		c.JSON(err.Code, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, view.ConvertTicketDomainToResponse(ticketDomain))
+	// Converter slice de domains para slice de responses
+	var ticketResponses []response.TicketResponse
+	for _, ticket := range tickets {
+		ticketResponses = append(ticketResponses, view.ConvertTicketDomainToResponse(ticket))
+	}
+
+	c.JSON(http.StatusOK, ticketResponses)
+}
+
+func (tc *ticketControllerInterface) FindAllTickets(c *gin.Context) {
+	tickets, err := tc.service.FindAllTickets()
+	if err != nil {
+		c.JSON(err.Code, err)
+		return
+	}
+
+	var ticketResponses []response.TicketResponse
+	for _, ticket := range tickets {
+		ticketResponses = append(ticketResponses, view.ConvertTicketDomainToResponse(ticket))
+	}
+
+	c.JSON(http.StatusOK, ticketResponses)
 }

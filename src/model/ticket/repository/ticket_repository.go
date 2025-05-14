@@ -30,7 +30,9 @@ type TicketRepository interface {
 
 	DeleteTicket(ticketId string) *rest_err.RestErr
 
-	FindTicketByEmail(email string) (ticketModel.TicketDomainInterface, *rest_err.RestErr)
+	FindAllTicketsByEmail(email string) ([]ticketModel.TicketDomainInterface, *rest_err.RestErr)
 
 	FindTicketById(id string) (ticketModel.TicketDomainInterface, *rest_err.RestErr)
+
+	FindAllTickets() ([]ticketModel.TicketDomainInterface, *rest_err.RestErr)
 }

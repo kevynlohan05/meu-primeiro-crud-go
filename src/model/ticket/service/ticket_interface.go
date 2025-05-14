@@ -19,6 +19,7 @@ type TicketDomainService interface {
 	UpdateTicket(string, ticketModel.TicketDomainInterface) *rest_err.RestErr
 	DeleteTicket(string) *rest_err.RestErr
 	FindTicketByIdServices(id string) (ticketModel.TicketDomainInterface, *rest_err.RestErr)
-	FindTicketByEmailServices(email string) (ticketModel.TicketDomainInterface, *rest_err.RestErr)
 	UpdateAsanaTaskID(ticketId string, taskID string) *rest_err.RestErr
+	FindAllTicketsByUser(email string) ([]ticketModel.TicketDomainInterface, *rest_err.RestErr)
+	FindAllTickets() ([]ticketModel.TicketDomainInterface, *rest_err.RestErr)
 }

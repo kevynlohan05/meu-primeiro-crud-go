@@ -16,13 +16,49 @@ func (td *ticketDomainService) FindTicketByIdServices(id string) (ticketModel.Ti
 		status, _, err := integrationAsana.GetAsanaTaskDetails(ticket.GetAsanaTaskID())
 		if err == nil {
 			ticket.SetStatus(status)
+			td.ticketRepository.UpdateTicket(id, ticket)
 		}
 	}
 
 	return ticket, nil
 }
 
-func (td *ticketDomainService) FindTicketByEmailServices(email string) (ticketModel.TicketDomainInterface, *rest_err.RestErr) {
+func (ts *ticketDomainService) FindAllTicketsByUser(email string) ([]ticketModel.TicketDomainInterface, *rest_err.RestErr) {
+	tickets, err := ts.ticketRepository.FindAllTicketsByEmail(email)
+	if err != nil {
+		return nil, err
+	}
 
-	return td.ticketRepository.FindTicketByEmail(email)
+	for _, t := range tickets {
+		asanaTaskID := t.GetAsanaTaskID()
+		if asanaTaskID != "" {
+			status, _, err := integrationAsana.GetAsanaTaskDetails(asanaTaskID)
+			if err == nil {
+				t.SetStatus(status)
+				_ = ts.ticketRepository.UpdateTicket(t.GetID(), t) // atualiza no banco
+			}
+		}
+	}
+
+	return tickets, nil
+}
+
+func (ts *ticketDomainService) FindAllTickets() ([]ticketModel.TicketDomainInterface, *rest_err.RestErr) {
+	tickets, err := ts.ticketRepository.FindAllTickets()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, t := range tickets {
+		asanaTaskID := t.GetAsanaTaskID()
+		if asanaTaskID != "" {
+			status, _, err := integrationAsana.GetAsanaTaskDetails(asanaTaskID)
+			if err == nil {
+				t.SetStatus(status)
+				_ = ts.ticketRepository.UpdateTicket(t.GetID(), t) // atualiza no banco
+			}
+		}
+	}
+
+	return tickets, nil
 }

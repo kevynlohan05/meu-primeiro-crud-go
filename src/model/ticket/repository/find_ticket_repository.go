@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/rest_err"
@@ -36,24 +37,61 @@ func (tr *ticketRepository) FindTicketById(id string) (ticketModel.TicketDomainI
 	return converter.ConvertTicketEntityToDomain(*ticketEntity), nil
 }
 
-func (tr *ticketRepository) FindTicketByEmail(email string) (ticketModel.TicketDomainInterface, *rest_err.RestErr) {
-	collection_name := os.Getenv(MONGODB_TICKET_COLLECTION)
-	collection := tr.databaseConnection.Collection(collection_name)
+func (tr *ticketRepository) FindAllTicketsByEmail(email string) ([]ticketModel.TicketDomainInterface, *rest_err.RestErr) {
+	fmt.Printf("🔍 Buscando tickets para email exato: [%s]\n", email)
+	collectionName := os.Getenv(MONGODB_TICKET_COLLECTION)
+	collection := tr.databaseConnection.Collection(collectionName)
 
-	ticketEntity := &ticketEntity.TicketEntity{}
+	filter := bson.M{"request_user": bson.M{"$eq": email}}
 
-	filter := bson.D{{Key: "email", Value: email}}
-	err := collection.FindOne(context.Background(), filter).Decode(ticketEntity)
-
+	cursor, err := collection.Find(context.Background(), filter)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			errorMessage := "Ticket not found"
-			return nil, rest_err.NewNotFoundError(errorMessage)
-		}
-
-		errorMessage := "Error while trying to find ticket: " + err.Error()
-		return nil, rest_err.NewInternalServerError(errorMessage)
+		fmt.Println("❌ Erro ao buscar tickets:", err.Error())
+		return nil, rest_err.NewInternalServerError(err.Error())
 	}
 
-	return converter.ConvertTicketEntityToDomain(*ticketEntity), nil
+	var tickets []ticketModel.TicketDomainInterface
+	for cursor.Next(context.Background()) {
+		var entity ticketEntity.TicketEntity
+		if err := cursor.Decode(&entity); err != nil {
+			fmt.Println("❌ Erro ao decodificar ticket:", err.Error())
+			return nil, rest_err.NewInternalServerError(err.Error())
+		}
+		tickets = append(tickets, converter.ConvertTicketEntityToDomain(entity))
+	}
+
+	if len(tickets) == 0 {
+		fmt.Println("⚠️ Nenhum ticket encontrado para:", email)
+		return nil, rest_err.NewNotFoundError("Nenhum ticket encontrado para o e-mail informado")
+	}
+
+	return tickets, nil
+}
+
+func (tr *ticketRepository) FindAllTickets() ([]ticketModel.TicketDomainInterface, *rest_err.RestErr) {
+	collectionName := os.Getenv(MONGODB_TICKET_COLLECTION)
+	collection := tr.databaseConnection.Collection(collectionName)
+
+	cursor, err := collection.Find(context.Background(), bson.D{})
+	if err != nil {
+		fmt.Println("❌ Erro ao buscar todos os tickets:", err.Error())
+		return nil, rest_err.NewInternalServerError(err.Error())
+	}
+
+	var tickets []ticketModel.TicketDomainInterface
+	for cursor.Next(context.Background()) {
+		var entity ticketEntity.TicketEntity
+		if err := cursor.Decode(&entity); err != nil {
+			fmt.Println("❌ Erro ao decodificar ticket:", err.Error())
+			return nil, rest_err.NewInternalServerError(err.Error())
+		}
+		tickets = append(tickets, converter.ConvertTicketEntityToDomain(entity))
+	}
+
+	if len(tickets) == 0 {
+		fmt.Println("⚠️ Nenhum ticket encontrado.")
+		return nil, rest_err.NewNotFoundError("Nenhum ticket encontrado.")
+	}
+
+	return tickets, nil
 }
