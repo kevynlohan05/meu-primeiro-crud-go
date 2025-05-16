@@ -35,4 +35,6 @@ type TicketRepository interface {
 	FindTicketById(id string) (ticketModel.TicketDomainInterface, *rest_err.RestErr)
 
 	FindAllTickets() ([]ticketModel.TicketDomainInterface, *rest_err.RestErr)
+
+	AddComment(ticketId string, comment ticketModel.CommentDomain) *rest_err.RestErr
 }

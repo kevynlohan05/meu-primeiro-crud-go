@@ -22,4 +22,5 @@ type TicketDomainService interface {
 	UpdateAsanaTaskID(ticketId string, taskID string) *rest_err.RestErr
 	FindAllTicketsByUser(email string) ([]ticketModel.TicketDomainInterface, *rest_err.RestErr)
 	FindAllTickets() ([]ticketModel.TicketDomainInterface, *rest_err.RestErr)
+	AddComment(ticketId string, comment ticketModel.CommentDomain) *rest_err.RestErr
 }

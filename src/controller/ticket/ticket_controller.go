@@ -18,6 +18,7 @@ type TicketControllerInterface interface {
 	FindTicketById(c *gin.Context)
 	FindAllTicketsByUser(c *gin.Context)
 	FindAllTickets(c *gin.Context)
+	AddComment(c *gin.Context)
 }
 
 type ticketControllerInterface struct {

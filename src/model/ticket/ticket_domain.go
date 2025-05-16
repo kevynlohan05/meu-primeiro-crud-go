@@ -11,6 +11,13 @@ type ticketDomain struct {
 	attachmentURL string
 	asanaTaskID   string
 	status        string
+	comments      []CommentDomain
+}
+
+type CommentDomain struct {
+	Author    string
+	Message   string
+	Timestamp int64
 }
 
 func (td *ticketDomain) SetID(id string) {
@@ -63,4 +70,16 @@ func (td *ticketDomain) GetPriority() string {
 
 func (td *ticketDomain) GetAttachmentURL() string {
 	return td.attachmentURL
+}
+
+func (td *ticketDomain) GetComments() []CommentDomain {
+	return td.comments
+}
+
+func (td *ticketDomain) SetComments(comments []CommentDomain) {
+	td.comments = comments
+}
+
+func (td *ticketDomain) AddComment(comment CommentDomain) {
+	td.comments = append(td.comments, comment)
 }

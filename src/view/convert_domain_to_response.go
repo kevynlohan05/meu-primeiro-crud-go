@@ -17,6 +17,17 @@ func ConvertUserDomainToResponse(userDomain userModel.UserDomainInterface) respo
 }
 
 func ConvertTicketDomainToResponse(ticketDomain ticketModel.TicketDomainInterface) response.TicketResponse {
+	commentsDomain := ticketDomain.GetComments()
+	commentsResponse := make([]response.CommentResponse, len(commentsDomain))
+
+	for i, comment := range commentsDomain {
+		commentsResponse[i] = response.CommentResponse{
+			Author:    comment.Author,
+			Message:   comment.Message,
+			Timestamp: comment.Timestamp,
+		}
+	}
+
 	return response.TicketResponse{
 		ID:            ticketDomain.GetID(),
 		Status:        ticketDomain.GetStatus(),
@@ -28,5 +39,6 @@ func ConvertTicketDomainToResponse(ticketDomain ticketModel.TicketDomainInterfac
 		Priority:      ticketDomain.GetPriority(),
 		AttachmentURL: ticketDomain.GetAttachmentURL(),
 		AsanaTaskID:   ticketDomain.GetAsanaTaskID(),
+		Comments:      commentsResponse,
 	}
 }

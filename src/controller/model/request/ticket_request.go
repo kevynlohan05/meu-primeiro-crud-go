@@ -20,3 +20,8 @@ type TicketUpdateRequest struct {
 	AttachmentURL string `json:"attachment_url,omitempty"`         // Ex: link para o arquivo no S3, etc.
 	Status        string `json:"status" binding:"omitempty"`
 }
+
+type AddCommentRequest struct {
+	Author  string `json:"author" binding:"required"`
+	Message string `json:"message" binding:"required"`
+}

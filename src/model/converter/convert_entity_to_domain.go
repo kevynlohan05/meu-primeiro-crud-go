@@ -43,6 +43,16 @@ func ConvertTicketEntityToDomain(entity ticketEntity.TicketEntity) ticketModel.T
 	domain.SetID(entity.ID.Hex())
 	domain.SetAsanaTaskID(entity.AsanaTaskID)
 
+	var comments []ticketModel.CommentDomain
+	for _, comment := range entity.Comments {
+		comments = append(comments, ticketModel.CommentDomain{
+			Author:    comment.Author,
+			Message:   comment.Message,
+			Timestamp: comment.Timestamp,
+		})
+	}
+	domain.SetComments(comments)
+
 	// Logando o domínio após a definição do ID
 	log.Println("Domain after setting ID:")
 	log.Printf("Domain: %+v\n", domain)

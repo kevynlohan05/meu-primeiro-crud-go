@@ -11,10 +11,14 @@ type TicketDomainInterface interface {
 	GetAttachmentURL() string
 	GetAsanaTaskID() string
 	GetStatus() string
+	GetComments() []CommentDomain
 
+	SetComments([]CommentDomain)
 	SetStatus(string)
 	SetAsanaTaskID(string)
 	SetID(string)
+
+	AddComment(CommentDomain)
 }
 
 func NewTicketDomain(title, requestUser, sector, description, requestType, priority, attachmentURL string) TicketDomainInterface {
