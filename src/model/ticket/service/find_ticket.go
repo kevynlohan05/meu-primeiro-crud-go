@@ -23,7 +23,7 @@ func (td *ticketDomainService) FindTicketByIdServices(id string) (ticketModel.Ti
 	return ticket, nil
 }
 
-func (ts *ticketDomainService) FindAllTicketsByUser(email string) ([]ticketModel.TicketDomainInterface, *rest_err.RestErr) {
+func (ts *ticketDomainService) FindAllTicketsByEmail(email string) ([]ticketModel.TicketDomainInterface, *rest_err.RestErr) {
 	tickets, err := ts.ticketRepository.FindAllTicketsByEmail(email)
 	if err != nil {
 		return nil, err
@@ -61,4 +61,34 @@ func (ts *ticketDomainService) FindAllTickets() ([]ticketModel.TicketDomainInter
 	}
 
 	return tickets, nil
+}
+
+func (ts *ticketDomainService) FindAllTicketsByEmailAndStatus(email string, status string) ([]ticketModel.TicketDomainInterface, *rest_err.RestErr) {
+	tickets, err := ts.ticketRepository.FindAllTicketsByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+
+	var filteredTickets []ticketModel.TicketDomainInterface
+
+	for _, t := range tickets {
+		asanaTaskID := t.GetAsanaTaskID()
+		if asanaTaskID != "" {
+			newStatus, _, err := integrationAsana.GetAsanaTaskDetails(asanaTaskID)
+			if err == nil {
+				t.SetStatus(newStatus)
+				_ = ts.ticketRepository.UpdateTicket(t.GetID(), t)
+			}
+		}
+
+		if t.GetStatus() == status {
+			filteredTickets = append(filteredTickets, t)
+		}
+	}
+
+	if len(filteredTickets) == 0 {
+		return nil, rest_err.NewNotFoundError("Nenhum ticket encontrado com os filtros fornecidos")
+	}
+
+	return filteredTickets, nil
 }

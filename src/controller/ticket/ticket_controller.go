@@ -16,7 +16,8 @@ type TicketControllerInterface interface {
 	UpdateTicket(c *gin.Context)
 	DeleteTicket(c *gin.Context)
 	FindTicketById(c *gin.Context)
-	FindAllTicketsByUser(c *gin.Context)
+	FindAllTicketsByEmail(c *gin.Context)
+	FindAllTicketsByEmailAndStatus(c *gin.Context)
 	FindAllTickets(c *gin.Context)
 	AddComment(c *gin.Context)
 }

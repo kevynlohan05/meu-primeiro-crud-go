@@ -28,7 +28,7 @@ func (tc *ticketControllerInterface) FindTicketById(c *gin.Context) {
 	c.JSON(http.StatusOK, view.ConvertTicketDomainToResponse(ticketDomain))
 }
 
-func (tc *ticketControllerInterface) FindAllTicketsByUser(c *gin.Context) {
+func (tc *ticketControllerInterface) FindAllTicketsByEmail(c *gin.Context) {
 	ticketEmail := c.Param("ticketEmail")
 
 	// Validação simples de e-mail (opcional)
@@ -38,7 +38,7 @@ func (tc *ticketControllerInterface) FindAllTicketsByUser(c *gin.Context) {
 		return
 	}
 
-	tickets, err := tc.service.FindAllTicketsByUser(ticketEmail)
+	tickets, err := tc.service.FindAllTicketsByEmail(ticketEmail)
 	if err != nil {
 		c.JSON(err.Code, err)
 		return
@@ -55,6 +55,36 @@ func (tc *ticketControllerInterface) FindAllTicketsByUser(c *gin.Context) {
 
 func (tc *ticketControllerInterface) FindAllTickets(c *gin.Context) {
 	tickets, err := tc.service.FindAllTickets()
+	if err != nil {
+		c.JSON(err.Code, err)
+		return
+	}
+
+	var ticketResponses []response.TicketResponse
+	for _, ticket := range tickets {
+		ticketResponses = append(ticketResponses, view.ConvertTicketDomainToResponse(ticket))
+	}
+
+	c.JSON(http.StatusOK, ticketResponses)
+}
+
+func (tc *ticketControllerInterface) FindAllTicketsByEmailAndStatus(c *gin.Context) {
+	ticketEmail := c.Param("ticketEmail")
+	ticketStatus := c.Param("ticketStatus")
+
+	if ticketEmail == "" {
+		errorMessage := rest_err.NewBadRequestError("Email do solicitante é obrigatório")
+		c.JSON(errorMessage.Code, errorMessage)
+		return
+	}
+
+	if ticketStatus == "" {
+		errorMessage := rest_err.NewBadRequestError("Status é obrigatório")
+		c.JSON(errorMessage.Code, errorMessage)
+		return
+	}
+
+	tickets, err := tc.service.FindAllTicketsByEmailAndStatus(ticketEmail, ticketStatus)
 	if err != nil {
 		c.JSON(err.Code, err)
 		return
