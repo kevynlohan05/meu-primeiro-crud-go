@@ -12,8 +12,9 @@ import (
 )
 
 var (
-	ASANA_PROJECT_ID   = "ASANA_PROJECT_ID"
-	ASANA_ACCESS_TOKEN = "ASANA_ACCESS_TOKEN"
+	ASANA_PROJECT_ID_TESTE   = "ASANA_PROJECT_ID_TESTE"
+	ASANA_PROJECT_ID_SUPORTE = "ASANA_PROJECT_ID_SUPORTE"
+	ASANA_ACCESS_TOKEN       = "ASANA_ACCESS_TOKEN"
 )
 
 // Estrutura para o payload da task
@@ -29,7 +30,15 @@ type AsanaTaskData struct {
 
 // Criação da tarefa no Asana
 func CreateAsanaTask(ticket ticketModel.TicketDomainInterface) (string, error) {
-	projectID := os.Getenv(ASANA_PROJECT_ID)
+	projectID := ticket.GetProjects()
+	if projectID == "teste" {
+		projectID = os.Getenv(ASANA_PROJECT_ID_TESTE)
+	}
+
+	if projectID == "suporte" {
+		projectID = os.Getenv(ASANA_PROJECT_ID_SUPORTE)
+	}
+
 	token := os.Getenv(ASANA_ACCESS_TOKEN)
 
 	// Monta a descrição completa com todas as informações

@@ -27,10 +27,14 @@ func (tc *ticketControllerInterface) CreateTicket(c *gin.Context) {
 		return
 	}
 
+	userEmail := c.GetString("userEmail")
+
+	userDepartment := c.GetString("userDepartment")
+
 	domain := ticketModel.NewTicketDomain(
 		ticketRequest.Title,
-		ticketRequest.RequestUser,
-		ticketRequest.Sector,
+		userEmail,
+		userDepartment,
 		ticketRequest.Description,
 		ticketRequest.RequestType,
 		ticketRequest.Priority,

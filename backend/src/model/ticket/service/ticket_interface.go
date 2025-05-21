@@ -4,14 +4,19 @@ import (
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/rest_err"
 	ticketModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket"
 	repositoryTicket "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket/repository"
+	userService "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/user/service"
 )
 
-func NewTicketDomainService(ticketRepository repositoryTicket.TicketRepository) TicketDomainService {
-	return &ticketDomainService{ticketRepository}
+func NewTicketDomainService(userService userService.UserDomainService, ticketRepository repositoryTicket.TicketRepository) TicketDomainService {
+	return &ticketDomainService{
+		ticketRepository: ticketRepository,
+		userService:      userService,
+	}
 }
 
 type ticketDomainService struct {
 	ticketRepository repositoryTicket.TicketRepository
+	userService      userService.UserDomainService
 }
 
 type TicketDomainService interface {

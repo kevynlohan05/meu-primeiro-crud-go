@@ -10,38 +10,61 @@ import (
 )
 
 func (ud *ticketDomainService) CreateTicket(ticketDomain ticketModel.TicketDomainInterface) (ticketModel.TicketDomainInterface, *rest_err.RestErr) {
-
 	ticketDomain.SetStatus("Novas")
-	log.Println("Calling repository to create ticket")
+	log.Println("Starting ticket creation process")
+
+	// Fetch user by email
+	user, err := ud.userService.FindUserByEmailServices(ticketDomain.GetRequestUser())
+	if err != nil {
+		log.Println("Error fetching user by email:", err)
+		return nil, err
+	}
+
+	// Check if user has access to the selected project
+	hasAccess := false
+	for _, project := range user.GetProjects() {
+		if project == ticketDomain.GetProjects() {
+			hasAccess = true
+			break
+		}
+	}
+
+	if !hasAccess {
+		log.Println("User is not allowed to create a ticket in this project")
+		return nil, rest_err.NewBadRequestError("User is not allowed to create a ticket in this project")
+	}
+
+	// Create the ticket in the repository
 	ticketDomainRepository, err := ud.ticketRepository.CreateTicket(ticketDomain)
 	if err != nil {
-		log.Println("Error in repository:", err)
+		log.Println("Repository error while creating ticket:", err)
 		return nil, err
 	}
 
 	if ticketDomainRepository == nil {
-		log.Println("Error: ticketDomainRepository is nil")
+		log.Println("Repository returned nil while creating ticket")
 		return nil, rest_err.NewInternalServerError("Failed to create ticket in repository")
 	}
 
-	log.Println("Ticket created successfully")
+	log.Println("Ticket successfully created")
 
+	// Launch asynchronous process to create the Asana task
 	go func(ticket ticketModel.TicketDomainInterface) {
-		log.Println("Chamando integração com o Asana")
+		log.Println("Starting Asana task creation")
 		taskID, err := integrationAsana.CreateAsanaTask(ticket)
 		if err != nil {
-			log.Println("Erro ao criar tarefa no Asana:", err)
+			log.Println("Error while creating Asana task:", err)
 			return
 		}
-		log.Printf("Tarefa criada com sucesso no Asana! ID: %s\n", taskID)
+		log.Printf("Asana task successfully created! ID: %s\n", taskID)
 
-		// Atualizar o ticket com o ID da task do Asana
+		// Update ticket with Asana task ID
 		restErr := ud.ticketRepository.UpdateAsanaTaskID(ticket.GetID(), taskID)
 		if restErr != nil {
-			log.Println("Erro ao atualizar ticket com taskID do Asana:", err)
+			log.Println("Error updating ticket with Asana task ID:", restErr)
 			return
 		}
-		log.Println("ticket atualizado com taskID do Asana")
+		log.Println("Ticket updated with Asana task ID")
 	}(ticketDomainRepository)
 
 	return ticketDomainRepository, nil

@@ -36,7 +36,7 @@ func main() {
 	userController := controllerUser.NewUserControllerInterface(userServiceInstace)
 
 	repoTicket := repositoryTicket.NewTicketRepository(database)
-	ticketServiceInstance := ticketService.NewTicketDomainService(repoTicket)
+	ticketServiceInstance := ticketService.NewTicketDomainService(userServiceInstace, repoTicket)
 	ticketController := controllerTicket.NewTicketControllerInterface(ticketServiceInstance)
 
 	router := gin.Default()
