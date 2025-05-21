@@ -12,6 +12,7 @@ type TicketDomainInterface interface {
 	GetAsanaTaskID() string
 	GetStatus() string
 	GetComments() []CommentDomain
+	GetProjects() string
 
 	SetComments([]CommentDomain)
 	SetStatus(string)
@@ -21,7 +22,7 @@ type TicketDomainInterface interface {
 	AddComment(CommentDomain)
 }
 
-func NewTicketDomain(title, requestUser, sector, description, requestType, priority, attachmentURL string) TicketDomainInterface {
+func NewTicketDomain(title, requestUser, sector, description, requestType, priority, attachmentURL, projects string) TicketDomainInterface {
 	return &ticketDomain{
 		title:         title,
 		requestUser:   requestUser,
@@ -30,6 +31,7 @@ func NewTicketDomain(title, requestUser, sector, description, requestType, prior
 		requestType:   requestType,
 		priority:      priority,
 		attachmentURL: attachmentURL,
+		projects:      projects,
 	}
 }
 

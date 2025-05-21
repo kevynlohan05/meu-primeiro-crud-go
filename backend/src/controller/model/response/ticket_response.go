@@ -12,6 +12,7 @@ type TicketResponse struct {
 	AttachmentURL string            `json:"attachment_url"`
 	AsanaTaskID   string            `json:"asana_task_id"`
 	Comments      []CommentResponse `json:"comments"`
+	Projects      string            `json:"projects"`
 }
 
 type CommentResponse struct {

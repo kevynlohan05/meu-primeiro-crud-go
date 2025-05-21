@@ -16,6 +16,7 @@ type TicketEntity struct {
 	AttachmentURL string                      `bson:"attachment_url,omitempty"`
 	Status        string                      `bson:"status,omitempty"`
 	AsanaTaskID   string                      `bson:"asana_task_id,omitempty"`
+	Projects      string                      `bson:"projects,omitempty"`
 	Comments      []ticketModel.CommentDomain `bson:"comments,omitempty"`
 }
 

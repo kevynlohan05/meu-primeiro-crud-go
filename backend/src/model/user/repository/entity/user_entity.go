@@ -8,5 +8,6 @@ type UserEntity struct {
 	Email      string             `bson:"email,omitempty"`
 	Password   string             `bson:"password,omitempty"`
 	Department string             `bson:"department,omitempty"`
+	Projects   []string           `bson:"projects,omitempty"`
 	Role       string             `bson:"role,omitempty"`
 }

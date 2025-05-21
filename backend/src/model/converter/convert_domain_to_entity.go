@@ -17,6 +17,7 @@ func ConvertUserDomainToEntity(domain userModel.UserDomainInterface) *userEntity
 		Email:      domain.GetEmail(),
 		Password:   domain.GetPassword(),
 		Department: domain.GetDepartment(),
+		Projects:   domain.GetProjects(),
 		Role:       domain.GetRole(),
 	}
 
@@ -38,9 +39,9 @@ func ConvertTicketDomainToEntity(domain ticketModel.TicketDomainInterface) *tick
 		Priority:      domain.GetPriority(),
 		AttachmentURL: domain.GetAttachmentURL(),
 		Status:        domain.GetStatus(),
+		Projects:      domain.GetProjects(),
 	}
 
-	// Logando o que foi convertido para a entidade
 	log.Println("Converted domain to entity successfully:")
 	log.Printf("Entity: %+v\n", entity)
 

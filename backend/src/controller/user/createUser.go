@@ -32,6 +32,7 @@ func (uc *userControllerInterface) CreateUser(c *gin.Context) {
 		userRequest.Password,
 		userRequest.Department,
 		userRequest.Role,
+		userRequest.Projects,
 	)
 
 	domainResult, err := uc.service.CreateUserServices(domain)

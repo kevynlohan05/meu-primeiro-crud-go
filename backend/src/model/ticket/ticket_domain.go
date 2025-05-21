@@ -12,6 +12,7 @@ type ticketDomain struct {
 	asanaTaskID   string
 	status        string
 	comments      []CommentDomain
+	projects      string
 }
 
 type CommentDomain struct {
@@ -30,6 +31,10 @@ func (td *ticketDomain) SetStatus(status string) {
 
 func (td *ticketDomain) GetStatus() string {
 	return td.status
+}
+
+func (td *ticketDomain) GetProjects() string {
+	return td.projects
 }
 
 func (td *ticketDomain) SetAsanaTaskID(asanaTaskID string) {

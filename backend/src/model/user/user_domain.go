@@ -6,7 +6,20 @@ type userDomain struct {
 	email      string
 	password   string
 	department string
+	projects   []string
 	role       string
+}
+
+func (ud *userDomain) GetProjects() []string {
+	return ud.projects
+}
+
+func (ud *userDomain) AddProject(project string) {
+	ud.projects = append(ud.projects, project)
+}
+
+func (ud *userDomain) SetProjects(projects []string) {
+	ud.projects = projects
 }
 
 func (ud *userDomain) GetID() string {

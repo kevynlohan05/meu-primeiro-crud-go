@@ -7,11 +7,15 @@ type UserDomainInterface interface {
 	GetEmail() string
 	GetPassword() string
 	GetDepartment() string
+	GetProjects() []string
 	GetRole() string
 
 	GetID() string
 
 	SetID(string)
+	SetProjects([]string)
+
+	AddProject(string)
 
 	EncryptPassword()
 	GenerateToken() (string, *rest_err.RestErr)
@@ -24,13 +28,14 @@ func NewUserLoginDomain(email, password string) UserDomainInterface {
 	}
 }
 
-func NewUserDomain(name, email, password, department, role string) UserDomainInterface {
+func NewUserDomain(name, email, password, department, role string, projects []string) UserDomainInterface {
 	return &userDomain{
 		name:       name,
 		email:      email,
 		password:   password,
 		department: department,
 		role:       role,
+		projects:   projects,
 	}
 }
 

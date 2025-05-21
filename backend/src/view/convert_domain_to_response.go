@@ -7,11 +7,19 @@ import (
 )
 
 func ConvertUserDomainToResponse(userDomain userModel.UserDomainInterface) response.UserResponse {
+	projectsDomain := userDomain.GetProjects()
+	projectsResponse := make([]string, len(projectsDomain))
+
+	for i, project := range projectsDomain {
+		projectsResponse[i] = project
+	}
+
 	return response.UserResponse{
 		ID:         userDomain.GetID(),
 		Name:       userDomain.GetName(),
 		Email:      userDomain.GetEmail(),
 		Department: userDomain.GetDepartment(),
+		Projects:   projectsResponse,
 		Role:       userDomain.GetRole(),
 	}
 }
@@ -40,5 +48,6 @@ func ConvertTicketDomainToResponse(ticketDomain ticketModel.TicketDomainInterfac
 		AttachmentURL: ticketDomain.GetAttachmentURL(),
 		AsanaTaskID:   ticketDomain.GetAsanaTaskID(),
 		Comments:      commentsResponse,
+		Projects:      ticketDomain.GetProjects(),
 	}
 }

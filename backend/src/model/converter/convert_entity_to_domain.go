@@ -17,6 +17,7 @@ func ConvertUserEntityToDomain(entity userEntity.UserEntity) userModel.UserDomai
 		entity.Password,
 		entity.Department,
 		entity.Role,
+		entity.Projects,
 	)
 
 	domain.SetID(entity.ID.Hex())
@@ -38,6 +39,7 @@ func ConvertTicketEntityToDomain(entity ticketEntity.TicketEntity) ticketModel.T
 		entity.RequestType,
 		entity.Priority,
 		entity.AttachmentURL,
+		entity.Projects,
 	)
 
 	domain.SetID(entity.ID.Hex())
