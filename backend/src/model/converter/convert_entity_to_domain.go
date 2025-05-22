@@ -15,6 +15,8 @@ func ConvertUserEntityToDomain(entity userEntity.UserEntity) userModel.UserDomai
 		entity.Name,
 		entity.Email,
 		entity.Password,
+		entity.Phone,
+		entity.Enterprise,
 		entity.Department,
 		entity.Role,
 		entity.Projects,

@@ -16,6 +16,8 @@ func ConvertUserDomainToEntity(domain userModel.UserDomainInterface) *userEntity
 		Name:       domain.GetName(),
 		Email:      domain.GetEmail(),
 		Password:   domain.GetPassword(),
+		Phone:      domain.GetPhone(),
+		Enterprise: domain.GetEnterprise(),
 		Department: domain.GetDepartment(),
 		Projects:   domain.GetProjects(),
 		Role:       domain.GetRole(),

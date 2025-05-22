@@ -6,7 +6,7 @@ type TicketRequest struct {
 	RequestType   string `json:"request_type" binding:"required"` // Ex: "Bugs", "Dúvidas", etc.
 	Priority      string `json:"priority" binding:"required"`     // Ex: "Baixa", "Média", "Alta"
 	AttachmentURL string `json:"attachment_url,omitempty"`
-	Projects      string `json:"projects" binding:"required,oneof=teste suporte"`
+	Project       string `json:"project" binding:"required,oneof=teste suporte"`
 }
 
 type TicketUpdateRequest struct {
@@ -21,6 +21,5 @@ type TicketUpdateRequest struct {
 }
 
 type AddCommentRequest struct {
-	Author  string `json:"author" binding:"required"`
 	Message string `json:"message" binding:"required"`
 }

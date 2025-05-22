@@ -30,6 +30,8 @@ func (uc *userControllerInterface) CreateUser(c *gin.Context) {
 		userRequest.Name,
 		userRequest.Email,
 		userRequest.Password,
+		userRequest.Phone,
+		userRequest.Enterprise,
 		userRequest.Department,
 		userRequest.Role,
 		userRequest.Projects,

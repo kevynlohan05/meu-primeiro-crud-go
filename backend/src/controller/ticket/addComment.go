@@ -29,8 +29,10 @@ func (tc *ticketControllerInterface) AddComment(c *gin.Context) {
 		return
 	}
 
+	userEmail := c.GetString("userEmail")
+
 	comment := ticketModel.CommentDomain{
-		Author:    req.Author,
+		Author:    userEmail,
 		Message:   req.Message,
 		Timestamp: time.Now().Unix(),
 	}

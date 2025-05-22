@@ -5,6 +5,8 @@ type userDomain struct {
 	name       string
 	email      string
 	password   string
+	phone      string
+	enterprise string
 	department string
 	projects   []string
 	role       string
@@ -47,4 +49,12 @@ func (ud *userDomain) GetRole() string {
 
 func (ud *userDomain) SetID(id string) {
 	ud.iD = id
+}
+
+func (ud *userDomain) GetPhone() string {
+	return ud.phone
+}
+
+func (ud *userDomain) GetEnterprise() string {
+	return ud.enterprise
 }

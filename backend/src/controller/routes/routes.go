@@ -11,7 +11,7 @@ func InitRoutes(r *gin.RouterGroup, userController controllerUser.UserController
 
 	r.GET("/user/getUserById/:userId", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, userController.FindUserById)
 	r.GET("/user/getUserByEmail/:userEmail", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, userController.FindUserByEmail)
-	r.POST("/user/createUser", userController.CreateUser)
+	r.POST("/user/createUser", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, userController.CreateUser)
 	r.PUT("/user/updateUser/:userId", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, userController.UpdateUser)
 	r.DELETE("/user/deleteUser/:userId", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, userController.DeleteUser)
 

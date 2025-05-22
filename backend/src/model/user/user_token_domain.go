@@ -23,6 +23,8 @@ func (ud *userDomain) GenerateToken() (string, *rest_err.RestErr) {
 		"id":         ud.iD,
 		"name":       ud.name,
 		"email":      ud.email,
+		"phone":      ud.phone,
+		"enterprise": ud.enterprise,
 		"department": ud.department,
 		"role":       ud.role,
 		"exp":        time.Now().Add(time.Hour * 24).Unix(),

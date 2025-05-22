@@ -18,8 +18,10 @@ func ConvertUserDomainToResponse(userDomain userModel.UserDomainInterface) respo
 		ID:         userDomain.GetID(),
 		Name:       userDomain.GetName(),
 		Email:      userDomain.GetEmail(),
+		Phone:      userDomain.GetPhone(),
 		Department: userDomain.GetDepartment(),
 		Projects:   projectsResponse,
+		Enterprise: userDomain.GetEnterprise(),
 		Role:       userDomain.GetRole(),
 	}
 }
