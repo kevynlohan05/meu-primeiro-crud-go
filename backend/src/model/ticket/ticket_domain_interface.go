@@ -8,7 +8,7 @@ type TicketDomainInterface interface {
 	GetDescription() string
 	GetRequestType() string
 	GetPriority() string
-	GetAttachmentURL() string
+	GetAttachmentURLs() []string
 	GetAsanaTaskID() string
 	GetStatus() string
 	GetComments() []CommentDomain
@@ -22,26 +22,25 @@ type TicketDomainInterface interface {
 	AddComment(CommentDomain)
 }
 
-func NewTicketDomain(title, requestUser, sector, description, requestType, priority, attachmentURL, projects string) TicketDomainInterface {
+func NewTicketDomain(title, requestUser, sector, description, requestType, priority, projects string, attachmentURL []string) TicketDomainInterface {
 	return &ticketDomain{
-		title:         title,
-		requestUser:   requestUser,
-		sector:        sector,
-		description:   description,
-		requestType:   requestType,
-		priority:      priority,
-		attachmentURL: attachmentURL,
-		projects:      projects,
+		title:          title,
+		requestUser:    requestUser,
+		sector:         sector,
+		description:    description,
+		requestType:    requestType,
+		priority:       priority,
+		attachmentURLs: attachmentURL,
+		projects:       projects,
 	}
 }
 
-func NewTicketUpdateDomain(title, description, requestType, priority, attachmentURL, status string) TicketDomainInterface {
+func NewTicketUpdateDomain(title, description, requestType, priority, status string) TicketDomainInterface {
 	return &ticketDomain{
-		title:         title,
-		description:   description,
-		requestType:   requestType,
-		priority:      priority,
-		attachmentURL: attachmentURL,
-		status:        status,
+		title:       title,
+		description: description,
+		requestType: requestType,
+		priority:    priority,
+		status:      status,
 	}
 }

@@ -1,18 +1,18 @@
 package model
 
 type ticketDomain struct {
-	iD            string
-	title         string
-	requestUser   string
-	sector        string
-	description   string
-	requestType   string
-	priority      string
-	attachmentURL string
-	asanaTaskID   string
-	status        string
-	comments      []CommentDomain
-	projects      string
+	iD             string
+	title          string
+	requestUser    string
+	sector         string
+	description    string
+	requestType    string
+	priority       string
+	attachmentURLs []string
+	asanaTaskID    string
+	status         string
+	comments       []CommentDomain
+	projects       string
 }
 
 type CommentDomain struct {
@@ -73,8 +73,8 @@ func (td *ticketDomain) GetPriority() string {
 	return td.priority
 }
 
-func (td *ticketDomain) GetAttachmentURL() string {
-	return td.attachmentURL
+func (td *ticketDomain) GetAttachmentURLs() []string {
+	return td.attachmentURLs
 }
 
 func (td *ticketDomain) GetComments() []CommentDomain {

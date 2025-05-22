@@ -35,7 +35,6 @@ func (tc *ticketControllerInterface) UpdateTicket(c *gin.Context) {
 		ticketRequest.Description,
 		ticketRequest.RequestType,
 		ticketRequest.Priority,
-		ticketRequest.AttachmentURL,
 		ticketRequest.Status,
 	)
 

@@ -1,12 +1,11 @@
 package request
 
 type TicketRequest struct {
-	Title         string `json:"title" binding:"required,min=3,max=100"`
-	Description   string `json:"description" binding:"required,min=3,max=1000"`
-	RequestType   string `json:"request_type" binding:"required"` // Ex: "Bugs", "Dúvidas", etc.
-	Priority      string `json:"priority" binding:"required"`     // Ex: "Baixa", "Média", "Alta"
-	AttachmentURL string `json:"attachment_url,omitempty"`
-	Project       string `json:"project" binding:"required,oneof=teste suporte"`
+	Title       string `json:"title" binding:"required,min=3,max=100"`
+	Description string `json:"description" binding:"required,min=3,max=1000"`
+	RequestType string `json:"request_type" binding:"required"` // Ex: "Bugs", "Dúvidas", etc.
+	Priority    string `json:"priority" binding:"required"`     // Ex: "Baixa", "Média", "Alta"
+	Project     string `json:"project" binding:"required,oneof=teste suporte"`
 }
 
 type TicketUpdateRequest struct {

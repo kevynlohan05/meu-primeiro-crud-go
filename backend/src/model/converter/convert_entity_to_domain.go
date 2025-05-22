@@ -40,8 +40,8 @@ func ConvertTicketEntityToDomain(entity ticketEntity.TicketEntity) ticketModel.T
 		entity.Description,
 		entity.RequestType,
 		entity.Priority,
-		entity.AttachmentURL,
 		entity.Projects,
+		entity.AttachmentURLs,
 	)
 
 	domain.SetID(entity.ID.Hex())

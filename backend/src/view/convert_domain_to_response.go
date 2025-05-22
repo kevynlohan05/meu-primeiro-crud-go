@@ -9,10 +9,7 @@ import (
 func ConvertUserDomainToResponse(userDomain userModel.UserDomainInterface) response.UserResponse {
 	projectsDomain := userDomain.GetProjects()
 	projectsResponse := make([]string, len(projectsDomain))
-
-	for i, project := range projectsDomain {
-		projectsResponse[i] = project
-	}
+	copy(projectsResponse, projectsDomain)
 
 	return response.UserResponse{
 		ID:         userDomain.GetID(),
@@ -39,17 +36,17 @@ func ConvertTicketDomainToResponse(ticketDomain ticketModel.TicketDomainInterfac
 	}
 
 	return response.TicketResponse{
-		ID:            ticketDomain.GetID(),
-		Status:        ticketDomain.GetStatus(),
-		Title:         ticketDomain.GetTitle(),
-		RequestUser:   ticketDomain.GetRequestUser(),
-		Sector:        ticketDomain.GetSector(),
-		Description:   ticketDomain.GetDescription(),
-		RequestType:   ticketDomain.GetRequestType(),
-		Priority:      ticketDomain.GetPriority(),
-		AttachmentURL: ticketDomain.GetAttachmentURL(),
-		AsanaTaskID:   ticketDomain.GetAsanaTaskID(),
-		Comments:      commentsResponse,
-		Projects:      ticketDomain.GetProjects(),
+		ID:             ticketDomain.GetID(),
+		Status:         ticketDomain.GetStatus(),
+		Title:          ticketDomain.GetTitle(),
+		RequestUser:    ticketDomain.GetRequestUser(),
+		Sector:         ticketDomain.GetSector(),
+		Description:    ticketDomain.GetDescription(),
+		RequestType:    ticketDomain.GetRequestType(),
+		Priority:       ticketDomain.GetPriority(),
+		AttachmentURLs: ticketDomain.GetAttachmentURLs(),
+		AsanaTaskID:    ticketDomain.GetAsanaTaskID(),
+		Comments:       commentsResponse,
+		Projects:       ticketDomain.GetProjects(),
 	}
 }

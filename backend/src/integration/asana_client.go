@@ -50,7 +50,7 @@ func CreateAsanaTask(ticket ticketModel.TicketDomainInterface) (string, error) {
 		ticket.GetDescription(),
 		ticket.GetRequestType(),
 		ticket.GetPriority(),
-		ticket.GetAttachmentURL(),
+		ticket.GetAttachmentURLs(),
 	)
 
 	task := AsanaTaskRequest{

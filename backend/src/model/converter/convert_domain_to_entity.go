@@ -33,15 +33,15 @@ func ConvertUserDomainToEntity(domain userModel.UserDomainInterface) *userEntity
 func ConvertTicketDomainToEntity(domain ticketModel.TicketDomainInterface) *ticketEntity.TicketEntity {
 	// Criando a entidade
 	entity := &ticketEntity.TicketEntity{
-		Title:         domain.GetTitle(),
-		RequestUser:   domain.GetRequestUser(),
-		Sector:        domain.GetSector(),
-		Description:   domain.GetDescription(),
-		RequestType:   domain.GetRequestType(),
-		Priority:      domain.GetPriority(),
-		AttachmentURL: domain.GetAttachmentURL(),
-		Status:        domain.GetStatus(),
-		Projects:      domain.GetProjects(),
+		Title:          domain.GetTitle(),
+		RequestUser:    domain.GetRequestUser(),
+		Sector:         domain.GetSector(),
+		Description:    domain.GetDescription(),
+		RequestType:    domain.GetRequestType(),
+		Priority:       domain.GetPriority(),
+		AttachmentURLs: domain.GetAttachmentURLs(),
+		Status:         domain.GetStatus(),
+		Projects:       domain.GetProjects(),
 	}
 
 	log.Println("Converted domain to entity successfully:")
