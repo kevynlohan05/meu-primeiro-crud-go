@@ -4,9 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"mime"
+	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"os"
+	"path/filepath"
 
 	ticketModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket"
 )
@@ -43,14 +48,13 @@ func CreateAsanaTask(ticket ticketModel.TicketDomainInterface) (string, error) {
 
 	// Monta a descrição completa com todas as informações
 	notes := fmt.Sprintf(
-		"Título da solicitação: \n%s\n\nNome do solicitante: \n%s\n\nSetor do solicitante: \n%s\n\nDetalhe da solicitação: \n%s\n\nTipo de solicitação: \n%s\n\nPrioridade: \n%s\n\nAnexo: \n%s",
+		"Título da solicitação: \n%s\n\nNome do solicitante: \n%s\n\nSetor do solicitante: \n%s\n\nDetalhe da solicitação: \n%s\n\nTipo de solicitação: \n%s\n\nPrioridade: \n%s",
 		ticket.GetTitle(),
 		ticket.GetRequestUser(),
 		ticket.GetSector(),
 		ticket.GetDescription(),
 		ticket.GetRequestType(),
 		ticket.GetPriority(),
-		ticket.GetAttachmentURLs(),
 	)
 
 	task := AsanaTaskRequest{
@@ -144,4 +148,60 @@ func GetAsanaTaskDetails(taskID string) (string, []string, error) {
 	}
 
 	return status, nil, nil
+}
+
+func UploadAttachmentToAsana(taskID string, filePath string) error {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return fmt.Errorf("erro ao abrir arquivo: %v", err)
+	}
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	// Detecta o Content-Type com base na extensão do arquivo
+	contentType := mime.TypeByExtension(filepath.Ext(file.Name()))
+	if contentType == "" {
+		contentType = "application/octet-stream" // fallback genérico
+	}
+
+	// Cria o cabeçalho da parte com Content-Type apropriado
+	header := textproto.MIMEHeader{}
+	header.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file"; filename="%s"`, filepath.Base(file.Name())))
+	header.Set("Content-Type", contentType)
+
+	part, err := writer.CreatePart(header)
+	if err != nil {
+		return fmt.Errorf("erro ao criar parte do arquivo: %v", err)
+	}
+
+	_, err = io.Copy(part, file)
+	if err != nil {
+		return fmt.Errorf("erro ao copiar conteúdo do arquivo: %v", err)
+	}
+
+	writer.Close()
+
+	req, err := http.NewRequest("POST", "https://app.asana.com/api/1.0/tasks/"+taskID+"/attachments", body)
+	if err != nil {
+		return fmt.Errorf("erro ao criar requisição de upload: %v", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+os.Getenv(ASANA_ACCESS_TOKEN))
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("erro ao enviar requisição: %v", err)
+	}
+	defer resp.Body.Close()
+
+	respBody, _ := ioutil.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
+		return fmt.Errorf("falha no upload: %s", string(respBody))
+	}
+
+	return nil
 }

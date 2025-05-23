@@ -2,6 +2,7 @@ package service
 
 import (
 	"log"
+	"os"
 
 	integrationAsana "github.com/kevynlohan05/meu-primeiro-crud-go/src/integration"
 
@@ -56,15 +57,33 @@ func (ud *ticketDomainService) CreateTicket(ticketDomain ticketModel.TicketDomai
 			log.Println("Error while creating Asana task:", err)
 			return
 		}
+
 		log.Printf("Asana task successfully created! ID: %s\n", taskID)
 
 		// Update ticket with Asana task ID
-		restErr := ud.ticketRepository.UpdateAsanaTaskID(ticket.GetID(), taskID)
-		if restErr != nil {
+		if restErr := ud.ticketRepository.UpdateAsanaTaskID(ticket.GetID(), taskID); restErr != nil {
 			log.Println("Error updating ticket with Asana task ID:", restErr)
 			return
 		}
 		log.Println("Ticket updated with Asana task ID")
+
+		// 🔽 Upload dos arquivos anexados
+		for _, filePath := range ticket.GetAttachmentURLs() {
+			log.Println("Uploading file to Asana:", filePath)
+
+			err = integrationAsana.UploadAttachmentToAsana(taskID, filePath)
+			if err != nil {
+				log.Println("Erro ao enviar anexo para o Asana:", err)
+			} else {
+				log.Println("Arquivo enviado com sucesso ao Asana:", filePath)
+
+				if removeErr := os.Remove(filePath); removeErr != nil {
+					log.Println("Erro ao apagar arquivo local:", removeErr)
+				} else {
+					log.Println("Arquivo local removido:", filePath)
+				}
+			}
+		}
 	}(ticketDomainRepository)
 
 	return ticketDomainRepository, nil
