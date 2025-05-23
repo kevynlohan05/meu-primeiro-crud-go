@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api'; // novo import
+import api from '../services/api';
 import ThemeToggle from '../components/ThemeToggle';
 
 const Login = () => {
@@ -14,25 +14,28 @@ const Login = () => {
 
     try {
       const response = await api.post('/user/login', {
-          email,
-          password: senha, 
-        });
-        
+        email,
+        password: senha,
+      });
+
       const token = response.headers['authorization'];
 
-      console.log('Token no header:', token);
+      if (token && response.data) {
+        // Armazenar token e dados do usuário no localStorage
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(response.data));
 
-      if (token) {
-      localStorage.setItem('token', token); // ✅ Salva no localStorage
-      navigate('/formulario'); // ou a rota desejada
-    } else {
-      setError('Token não recebido');
+        // Navegar para o formulário após login
+        navigate('/formulario');
+      } else {
+        setError('Token não recebido ou dados inválidos.');
+      }
+
+    } catch (err) {
+      console.error('Erro ao fazer login:', err);
+      setError('Credenciais inválidas. Tente novamente.');
     }
-  } catch (err) {
-    console.error('Erro ao fazer login:', err);
-    setError('Credenciais inválidas');
-  }
-};
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-300 dark:bg-gray-900">
@@ -72,7 +75,10 @@ const Login = () => {
             />
           </div>
 
-          <button type="submit" className="w-full bg-green-600 text-white font-bold py-2 rounded-md hover:bg-green-500 transition">
+          <button
+            type="submit"
+            className="w-full bg-green-600 text-white font-bold py-2 rounded-md hover:bg-green-500 transition"
+          >
             Entrar
           </button>
         </form>

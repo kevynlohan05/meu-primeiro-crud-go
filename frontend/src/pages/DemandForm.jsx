@@ -1,183 +1,230 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../services/api'; // usa instância do axios
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const DemandForm = () => {
-  const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
+  const [user, setUser] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [form, setForm] = useState({
     title: '',
-    request_user: '',
-    sector: '',
+    project: '',
     description: '',
     request_type: '',
     priority: '',
-    attachment_url: ''
+    attachment_urls: [],
   });
-
-  const [file, setFile] = useState(null); // opcional, se quiser enviar o anexo depois
+  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    try {
+      const storedUser = JSON.parse(localStorage.getItem('user'));
+      if (storedUser) {
+        setUser(storedUser);
+        setProjects(storedUser.projects || []);
+      } else {
+        setError('Erro ao carregar informações do usuário.');
+      }
+    } catch (err) {
+      setError('Erro ao carregar informações do usuário.');
+    }
+  }, []);
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (files) {
-      setFile(files[0]); // Aqui futuramente você poderá enviar o arquivo.
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value
-      }));
-    }
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setForm({
+      ...form,
+      attachment_urls: [...form.attachment_urls, ...files],
+    });
+  };
+
+  const handleRemoveFile = (index) => {
+    const updatedFiles = [...form.attachment_urls];
+    updatedFiles.splice(index, 1);
+    setForm({
+      ...form,
+      attachment_urls: updatedFiles,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    if (!token || !user) {
+      setError('Usuário não autenticado.');
+      return;
+    }
 
-      await api.post('/ticket/createTicket', formData, {
+    const formData = new FormData();
+    formData.append('title', form.title);
+    formData.append('project', form.project);
+    formData.append('description', form.description);
+    formData.append('request_type', form.request_type);
+    formData.append('priority', form.priority);
+
+    form.attachment_urls.forEach((file) => {
+      formData.append('attachment_urls', file);
+    });
+
+    try {
+      await axios.post('http://localhost:8080/ticket/createTicket', formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: token,
+          'Content-Type': 'multipart/form-data',
         },
       });
 
-      const payload = {
-        ...formData,
-        attachment_url: '' // ou envie o caminho do arquivo quando for usar upload
-      };
-
-      console.log('Token enviado:', token);
-      console.log('Config headers:', config.headers);
-
-      await api.post('/ticket/createTicket', payload, config);
-
-      setSuccess('Solicitação enviada com sucesso!');
+      setMessage('Demanda enviada com sucesso!');
       setError('');
-      setTimeout(() => navigate('/demandas'), 1500);
+      setForm({
+        title: '',
+        project: '',
+        description: '',
+        request_type: '',
+        priority: '',
+        attachment_urls: [],
+      });
     } catch (err) {
-      console.error(err);
-      setError('Erro ao enviar a solicitação. Tente novamente.');
-      setSuccess('');
+      setError('Erro ao enviar demanda. Verifique os dados e tente novamente.');
+      setMessage('');
     }
   };
 
   return (
-    <div className="bg-slate-300 dark:bg-gray-900 min-h-screen flex items-center justify-center px-4">
-      <div className="bg-white h-[calc(100vh-40px)] overflow-auto p-8 shadow-lg w-full max-w-2xl space-y-6 dark:bg-slate-200">
-        <h1 className="text-2xl font-bold text-center text-gray-900">Solicitação de Demanda</h1>
-        <p className="text-gray-600 text-center">Preencha o formulário abaixo para enviar sua solicitação.</p>
+    <div className="p-6 max-w-2xl mx-auto bg-gray-100 rounded-xl shadow-md">
+      <h2 className="text-2xl font-bold mb-4 text-center">Solicitação de Demanda</h2>
+      <p className="text-gray-600 mb-4 text-center">
+        Preencha o formulário abaixo para enviar sua solicitação.
+      </p>
 
-        {success && <p className="text-green-600 text-center">{success}</p>}
-        {error && <p className="text-red-600 text-center">{error}</p>}
+      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+      {message && <p className="text-green-600 text-center mb-4">{message}</p>}
 
-        <form className="space-y-8" onSubmit={handleSubmit}>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Título da solicitação<span className='text-red-500'>*</span></label>
-            <input
-              type="text"
-              name="title"
-              required
-              onChange={handleChange}
-              className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Digite a sua resposta"
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block font-medium">Título da solicitação*</label>
+          <input
+            type="text"
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          />
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Nome do solicitante<span className='text-red-500'>*</span></label>
-            <input
-              type="text"
-              name="request_user"
-              required
-              onChange={handleChange}
-              className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Digite o seu nome"
-            />
-          </div>
+        <div>
+          <label className="block font-medium">Projeto*</label>
+          <select
+            name="project"
+            value={form.project}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          >
+            <option value="">Selecione um projeto</option>
+            {projects.map((proj, index) => (
+              <option key={index} value={proj}>
+                {proj}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Setor do solicitante<span className='text-red-500'>*</span></label>
-            <select
-              name="sector"
-              required
-              onChange={handleChange}
-              className="mt-1 w-full px-4 py-2 border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              <option value="">Selecione</option>
-              <option value="Atendimento">Atendimento</option>
-              <option value="Segurança">Segurança</option>
-              <option value="Gestão do Afiliado">Gestão do Afiliado</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Outro">Outro</option>
-            </select>
-          </div>
+        <div>
+          <label className="block font-medium">Detalhes da solicitação*</label>
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          />
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Detalhes da solicitação<span className='text-red-500'>*</span></label>
-            <textarea
-              name="description"
-              required
-              rows={4}
-              onChange={handleChange}
-              className="mt-1 w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Digite os detalhes da sua solicitação"
-            />
-          </div>
+        <div>
+          <label className="block font-medium">Tipo de Solicitação*</label>
+          <select
+            name="request_type"
+            value={form.request_type}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          >
+            <option value="">Selecione</option>
+            <option value="Bugs">Bugs</option>
+            <option value="Dúvidas">Dúvidas</option>
+            <option value="Nova implementação">Nova implementação</option>
+            <option value="Redefinir a senha">Redefinir a senha</option>
+            <option value="Solicitação de acesso">Solicitação de acesso</option>
+            <option value="Verificação de apostas">Verificação de apostas</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Tipo de Solicitação<span className='text-red-500'>*</span></label>
-            <select
-              name="request_type"
-              required
-              onChange={handleChange}
-              className="mt-1 w-full px-4 py-2 border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              <option value="">Selecione</option>
-              <option value="Bugs">Bugs</option>
-              <option value="Dúvidas">Dúvidas</option>
-              <option value="Nova implementação">Nova implementação</option>
-              <option value="Verificação de apostas">Verificação de apostas</option>
-              <option value="Solicitação de acesso">Solicitação de acesso</option>
-              <option value="Outros">Outros</option>
-            </select>
-          </div>
+        <div>
+          <label className="block font-medium">Prioridade*</label>
+          <select
+            name="priority"
+            value={form.priority}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          >
+            <option value="">Selecione</option>
+            <option value="baixa">Baixa</option>
+            <option value="media">Média</option>
+            <option value="alta">Alta</option>
+          </select>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Prioridade<span className='text-red-500'>*</span></label>
-            <select
-              name="priority"
-              required
-              onChange={handleChange}
-              className="mt-1 w-full px-4 py-2 border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              <option value="">Selecione</option>
-              <option value="Baixa">Baixa</option>
-              <option value="Média">Média</option>
-              <option value="Alta">Alta</option>
-            </select>
-          </div>
+        <div>
+          <label className="block font-medium mb-1">Anexos (imagens)*</label>
+          <input
+            type="file"
+            name="attachment_urls"
+            accept="image/*"
+            multiple
+            onChange={handleFileChange}
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          />
+          {form.attachment_urls.length > 0 && (
+            <ul className="mt-2 space-y-1">
+              {form.attachment_urls.map((file, index) => (
+                <li
+                  key={index}
+                  className="flex items-center justify-between text-sm text-gray-700 bg-gray-200 px-2 py-1 rounded"
+                >
+                  <span className="truncate max-w-xs">{file.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveFile(index)}
+                    className="text-red-500 hover:underline ml-4"
+                  >
+                    Remover
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Anexos</label>
-            <input
-              type="file"
-              name="anexos"
-              onChange={handleChange}
-              className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
-            />
-            <p className="text-xs text-gray-500 mt-1">Caso haja necessidade de um print, envie-nos.</p>
-          </div>
-
+        <div className="text-center">
           <button
             type="submit"
-            className="w-full bg-green-600 text-white font-bold py-2 rounded-md hover:bg-green-500 transition"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
-            Enviar Solicitação
+            Enviar Demanda
           </button>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 };
