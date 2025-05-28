@@ -8,7 +8,8 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/database/mongodb"
+	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/database/mysql"
+	"database/sql"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/routes"
 	controllerTicket "github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/ticket"
 	controllerUser "github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/user"
@@ -24,7 +25,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	database, err := mongodb.NewMongoDbConnection(context.Background())
+	database, err := mysql.NewMySQLConnection()
 	if err != nil {
 		log.Fatalf("Error connecting to MongoDB, error=%s \n", err.Error())
 		return
