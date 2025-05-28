@@ -1,15 +1,14 @@
 package main
 
 import (
-	"context"
 	"log"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/database/mysql"
-	"database/sql"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/routes"
 	controllerTicket "github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/ticket"
 	controllerUser "github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/user"
@@ -20,28 +19,30 @@ import (
 )
 
 func main() {
+	// Carrega variáveis de ambiente
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
+	// Conexão MySQL
 	database, err := mysql.NewMySQLConnection()
 	if err != nil {
-		log.Fatalf("Error connecting to MongoDB, error=%s \n", err.Error())
+		log.Fatalf("Error connecting to MySQL, error=%s \n", err.Error())
 		return
 	}
 
-	//Init depedencies
+	// Inicializa repositórios e serviços com *sql.DB
 	repoUser := repositoryUser.NewUserRepository(database)
-	userServiceInstace := userService.NewUserDomainService(repoUser)
-	userController := controllerUser.NewUserControllerInterface(userServiceInstace)
+	userServiceInstance := userService.NewUserDomainService(repoUser)
+	userController := controllerUser.NewUserControllerInterface(userServiceInstance)
 
-	repoTicket := repositoryTicket.NewTicketRepository(database)
-	ticketServiceInstance := ticketService.NewTicketDomainService(userServiceInstace, repoTicket)
+	repoTicket := repositoryTicket.NewTicketRepository(database) // Aqui a função espera *sql.DB
+	ticketServiceInstance := ticketService.NewTicketDomainService(userServiceInstance, repoTicket)
 	ticketController := controllerTicket.NewTicketControllerInterface(ticketServiceInstance)
 
+	// Setup Gin com CORS
 	router := gin.Default()
-
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -51,10 +52,11 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
+	// Inicializa rotas
 	routes.InitRoutes(&router.RouterGroup, userController, ticketController)
 
+	// Inicia servidor
 	if err := router.Run(":8080"); err != nil {
 		log.Fatal(err)
 	}
-
 }

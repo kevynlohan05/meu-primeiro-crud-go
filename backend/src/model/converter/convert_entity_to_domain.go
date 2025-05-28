@@ -1,7 +1,9 @@
 package converter
 
 import (
+	"encoding/json"
 	"log"
+	"fmt"
 
 	ticketModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket"
 	ticketEntity "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket/repository/entity"
@@ -10,7 +12,12 @@ import (
 )
 
 func ConvertUserEntityToDomain(entity userEntity.UserEntity) userModel.UserDomainInterface {
-	// Criando o domínio a partir da entidade
+	var projects []string
+	if err := json.Unmarshal([]byte(entity.Projects), &projects); err != nil {
+		log.Printf("Error unmarshaling projects JSON: %v\n", err)
+		projects = []string{} 
+	}
+
 	domain := userModel.NewUserDomain(
 		entity.Name,
 		entity.Email,
@@ -19,12 +26,11 @@ func ConvertUserEntityToDomain(entity userEntity.UserEntity) userModel.UserDomai
 		entity.Enterprise,
 		entity.Department,
 		entity.Role,
-		entity.Projects,
+		projects,
 	)
 
-	domain.SetID(entity.ID.Hex())
+	domain.SetID(fmt.Sprintf("%d", entity.ID))
 
-	// Logando o domínio após a definição do ID
 	log.Println("Domain after setting ID:")
 	log.Printf("Domain: %+v\n", domain)
 
@@ -32,7 +38,14 @@ func ConvertUserEntityToDomain(entity userEntity.UserEntity) userModel.UserDomai
 }
 
 func ConvertTicketEntityToDomain(entity ticketEntity.TicketEntity) ticketModel.TicketDomainInterface {
-	// Criando o domínio a partir da entidade
+	var attachmentURLs []string
+	err := json.Unmarshal([]byte(entity.AttachmentURLs), &attachmentURLs)
+	if err != nil {
+		log.Printf("Error unmarshaling attachment URLs: %v\n", err)
+		attachmentURLs = []string{} // fallback vazio
+	}
+
+
 	domain := ticketModel.NewTicketDomain(
 		entity.Title,
 		entity.RequestUser,
@@ -41,19 +54,17 @@ func ConvertTicketEntityToDomain(entity ticketEntity.TicketEntity) ticketModel.T
 		entity.RequestType,
 		entity.Priority,
 		entity.Projects,
-		entity.AttachmentURLs,
+		attachmentURLs,
 	)
 
-	domain.SetID(entity.ID.Hex())
+	domain.SetID(fmt.Sprintf("%d", entity.ID))
 	domain.SetAsanaTaskID(entity.AsanaTaskID)
 
 	var comments []ticketModel.CommentDomain
-	for _, comment := range entity.Comments {
-		comments = append(comments, ticketModel.CommentDomain{
-			Author:    comment.Author,
-			Message:   comment.Message,
-			Timestamp: comment.Timestamp,
-		})
+	err = json.Unmarshal([]byte(entity.Comments), &comments)
+	if err != nil {
+		log.Printf("Error unmarshaling comments: %v\n", err)
+		comments = []ticketModel.CommentDomain{}
 	}
 	domain.SetComments(comments)
 

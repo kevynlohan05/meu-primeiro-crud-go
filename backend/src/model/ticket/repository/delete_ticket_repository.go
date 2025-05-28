@@ -1,32 +1,38 @@
 package repository
 
 import (
-	"context"
+	"fmt"
 	"log"
-	"os"
+	"strconv"
 
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/rest_err"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (tr *ticketRepository) DeleteTicket(ticketId string) *rest_err.RestErr {
-	collection_name := os.Getenv(MONGODB_TICKET_COLLECTION)
-	collection := tr.databaseConnection.Collection(collection_name)
-
-	log.Println("Converting domain to entity")
-
-	ticketIdHex, _ := primitive.ObjectIDFromHex(ticketId)
-
-	filter := primitive.D{{Key: "_id", Value: ticketIdHex}}
-
-	log.Println("Delete ticket into MongoDB")
-	_, err := collection.DeleteOne(context.Background(), filter)
+	// Converte o ticketId string para int (supondo que o ID no MySQL seja INT)
+	id, err := strconv.Atoi(ticketId)
 	if err != nil {
-		log.Println("Error Delete ticket into MongoDB:", err)
-		return rest_err.NewInternalServerError(err.Error())
-
+		return rest_err.NewBadRequestError("ID do ticket inválido")
 	}
 
-	log.Println("Delete ticket successfully into MongoDB")
+	log.Println("Deleting ticket from MySQL")
+
+	result, err := tr.databaseConnection.Exec("DELETE FROM tickets WHERE id = ?", id)
+	if err != nil {
+		log.Println("Error deleting ticket from MySQL:", err)
+		return rest_err.NewInternalServerError(fmt.Sprintf("Erro ao deletar ticket: %s", err.Error()))
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Println("Error fetching rows affected:", err)
+		return rest_err.NewInternalServerError("Erro ao processar remoção do ticket")
+	}
+
+	if rowsAffected == 0 {
+		return rest_err.NewNotFoundError("Ticket não encontrado")
+	}
+
+	log.Println("Ticket deleted successfully from MySQL")
 	return nil
 }

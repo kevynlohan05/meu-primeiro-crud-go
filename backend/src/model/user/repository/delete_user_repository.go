@@ -1,33 +1,34 @@
 package repository
 
 import (
-	"context"
+	"fmt"
 	"log"
-	"os"
 
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/rest_err"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (ur *userRepository) DeleteUser(userId string) *rest_err.RestErr {
-	collection_name := os.Getenv(MONGODB_USER_COLLECTION)
-	collection := ur.databaseConnection.Collection(collection_name)
+	log.Println("Deleting user in MySQL with id:", userId)
 
-	log.Println("Converting domain to entity")
+	query := `DELETE FROM users WHERE id = ?`
 
-	userIdHex, _ := primitive.ObjectIDFromHex(userId)
-
-	filter := bson.D{{Key: "_id", Value: userIdHex}}
-
-	log.Println("Delete user into MongoDB")
-	_, err := collection.DeleteOne(context.Background(), filter)
+	result, err := ur.db.Exec(query, userId)
 	if err != nil {
-		log.Println("Error Delete user into MongoDB:", err)
-		return rest_err.NewInternalServerError(err.Error())
-
+		log.Println("Error deleting user from MySQL:", err)
+		return rest_err.NewInternalServerError(fmt.Sprintf("Error deleting user: %v", err))
 	}
 
-	log.Println("Delete user successfully into MongoDB")
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Println("Error getting affected rows:", err)
+		return rest_err.NewInternalServerError("Error verifying delete operation")
+	}
+
+	if rowsAffected == 0 {
+		log.Println("No user found with id:", userId)
+		return rest_err.NewNotFoundError(fmt.Sprintf("User with id %s not found", userId))
+	}
+
+	log.Println("User deleted successfully from MySQL")
 	return nil
 }

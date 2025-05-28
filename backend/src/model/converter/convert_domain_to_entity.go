@@ -1,6 +1,7 @@
 package converter
 
 import (
+	"encoding/json"
 	"log"
 
 	ticketModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket"
@@ -10,8 +11,12 @@ import (
 )
 
 func ConvertUserDomainToEntity(domain userModel.UserDomainInterface) *userEntity.UserEntity {
+	projectsJSON, err := json.Marshal(domain.GetProjects())
+	if err != nil {
+		log.Printf("Error marshaling projects: %v\n", err)
+		return nil
+	}
 
-	// Criando a entidade
 	entity := &userEntity.UserEntity{
 		Name:       domain.GetName(),
 		Email:      domain.GetEmail(),
@@ -19,11 +24,10 @@ func ConvertUserDomainToEntity(domain userModel.UserDomainInterface) *userEntity
 		Phone:      domain.GetPhone(),
 		Enterprise: domain.GetEnterprise(),
 		Department: domain.GetDepartment(),
-		Projects:   domain.GetProjects(),
+		Projects:   string(projectsJSON),
 		Role:       domain.GetRole(),
 	}
 
-	// Logando o que foi convertido para a entidade
 	log.Println("Converted domain to entity successfully:")
 	log.Printf("Entity: %+v\n", entity)
 
@@ -31,7 +35,12 @@ func ConvertUserDomainToEntity(domain userModel.UserDomainInterface) *userEntity
 }
 
 func ConvertTicketDomainToEntity(domain ticketModel.TicketDomainInterface) *ticketEntity.TicketEntity {
-	// Criando a entidade
+	attachmentURLsJSON, err := json.Marshal(domain.GetAttachmentURLs())
+	if err != nil {
+		log.Printf("Error marshaling attachment URLs: %v\n", err)
+		attachmentURLsJSON = []byte("[]") // fallback vazio
+	}
+
 	entity := &ticketEntity.TicketEntity{
 		Title:          domain.GetTitle(),
 		RequestUser:    domain.GetRequestUser(),
@@ -39,10 +48,17 @@ func ConvertTicketDomainToEntity(domain ticketModel.TicketDomainInterface) *tick
 		Description:    domain.GetDescription(),
 		RequestType:    domain.GetRequestType(),
 		Priority:       domain.GetPriority(),
-		AttachmentURLs: domain.GetAttachmentURLs(),
+		AttachmentURLs: string(attachmentURLsJSON),
 		Status:         domain.GetStatus(),
 		Projects:       domain.GetProjects(),
 	}
+
+	commentsJSON, err := json.Marshal(domain.GetComments())
+	if err != nil {
+		log.Printf("Error marshaling comments: %v\n", err)
+		commentsJSON = []byte("[]")
+	}
+	entity.Comments = string(commentsJSON)
 
 	log.Println("Converted domain to entity successfully:")
 	log.Printf("Entity: %+v\n", entity)

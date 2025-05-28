@@ -1,23 +1,20 @@
 package entity
 
-import (
-	ticketModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-)
 
 type TicketEntity struct {
-	ID             primitive.ObjectID          `json:"id" bson:"_id,omitempty"`
-	Title          string                      `bson:"title,omitempty"`
-	RequestUser    string                      `bson:"request_user,omitempty"`
-	Sector         string                      `bson:"sector,omitempty"`
-	Description    string                      `bson:"description,omitempty"`
-	RequestType    string                      `bson:"request_type,omitempty"`
-	Priority       string                      `bson:"priority,omitempty"`
-	AttachmentURLs []string                    `bson:"attachment_urls,omitempty"`
-	Status         string                      `bson:"status,omitempty"`
-	AsanaTaskID    string                      `bson:"asana_task_id,omitempty"`
-	Projects       string                      `bson:"projects,omitempty"`
-	Comments       []ticketModel.CommentDomain `bson:"comments,omitempty"`
+	ID             int64    `json:"id" gorm:"primaryKey;autoIncrement"`
+	Title          string   `json:"title"`
+	RequestUser    string   `json:"request_user"`
+	Sector         string   `json:"sector"`
+	Description    string   `json:"description"`
+	RequestType    string   `json:"request_type"`
+	Priority       string   `json:"priority"`
+	AttachmentURLs string   `json:"attachment_urls"` // armazenaremos como JSON
+	Department     string   `bson:"department"`
+	Status         string   `json:"status"`
+	AsanaTaskID    string   `json:"asana_task_id"`
+	Projects       string   `json:"projects"` // pode ser JSON ou string simples
+	Comments       string   `json:"comments"` // salva como JSON (serializado)
 }
 
 type Comment struct {

@@ -1,60 +1,96 @@
 package repository
 
 import (
-	"context"
+	"fmt"
 	"log"
-	"os"
+	"strconv"
 
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/rest_err"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model/converter"
 	ticketModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (tr *ticketRepository) UpdateTicket(ticketId string, ticketDomain ticketModel.TicketDomainInterface) *rest_err.RestErr {
-	collection_name := os.Getenv(MONGODB_TICKET_COLLECTION)
-	collection := tr.databaseConnection.Collection(collection_name)
-
-	log.Println("Converting domain to entity")
-
-	value := converter.ConvertTicketDomainToEntity(ticketDomain)
-	ticketIdHex, _ := primitive.ObjectIDFromHex(ticketId)
-
-	filter := primitive.D{{Key: "_id", Value: ticketIdHex}}
-	update := primitive.D{{Key: "$set", Value: value}}
-
-	log.Println("Update ticket into MongoDB")
-	_, err := collection.UpdateOne(context.Background(), filter, update)
+	ticketIDInt, err := strconv.Atoi(ticketId)
 	if err != nil {
-		log.Println("Error Update ticket into MongoDB:", err)
-		return rest_err.NewInternalServerError(err.Error())
-
+		return rest_err.NewBadRequestError("ID do ticket inválido")
 	}
 
-	log.Println("Update ticket successfully into MongoDB")
+	value := converter.ConvertTicketDomainToEntity(ticketDomain)
+	if value == nil {
+		return rest_err.NewInternalServerError("Falha na conversão do domínio para entidade")
+	}
+
+	// Query de update (ajuste os campos conforme seu schema)
+	query := `UPDATE tickets SET 
+		title = ?, 
+		request_user = ?, 
+		department = ?, 
+		description = ?, 
+		request_type = ?, 
+		priority = ?, 
+		attachment_url = ?, 
+		asana_task_id = ?, 
+		status = ? 
+		WHERE id = ?`
+
+	result, err := tr.databaseConnection.Exec(query,
+		value.Title,
+		value.RequestUser,
+		value.Department,
+		value.Description,
+		value.RequestType,
+		value.Priority,
+		value.AttachmentURLs,
+		value.AsanaTaskID,
+		value.Status,
+		ticketIDInt,
+	)
+
+	if err != nil {
+		log.Println("Erro ao atualizar ticket:", err)
+		return rest_err.NewInternalServerError(fmt.Sprintf("Erro ao atualizar ticket: %s", err.Error()))
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Println("Erro ao obter número de linhas afetadas:", err)
+		return rest_err.NewInternalServerError("Erro interno ao atualizar ticket")
+	}
+
+	if rowsAffected == 0 {
+		return rest_err.NewNotFoundError("Ticket não encontrado para atualização")
+	}
+
+	log.Println("Ticket atualizado com sucesso no MySQL")
 	return nil
 }
 
 func (tr *ticketRepository) UpdateAsanaTaskID(ticketId string, taskID string) *rest_err.RestErr {
-	collection_name := os.Getenv(MONGODB_TICKET_COLLECTION)
-	collection := tr.databaseConnection.Collection(collection_name)
-
-	objectID, err := primitive.ObjectIDFromHex(ticketId)
+	ticketIDInt, err := strconv.Atoi(ticketId)
 	if err != nil {
 		log.Println("Erro ao converter ID do ticket:", err)
 		return rest_err.NewBadRequestError("ID do ticket inválido")
 	}
 
-	filter := bson.M{"_id": objectID}
-	update := bson.M{"$set": bson.M{"asana_task_id": taskID}}
+	query := `UPDATE tickets SET asana_task_id = ? WHERE id = ?`
 
-	_, err = collection.UpdateOne(context.Background(), filter, update)
+	result, err := tr.databaseConnection.Exec(query, taskID, ticketIDInt)
 	if err != nil {
 		log.Println("Erro ao atualizar taskID do Asana:", err)
 		return rest_err.NewInternalServerError("Erro ao atualizar taskID do Asana")
 	}
 
-	log.Println("Update ticket successfully into MongoDB")
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Println("Erro ao obter número de linhas afetadas:", err)
+		return rest_err.NewInternalServerError("Erro interno ao atualizar taskID do Asana")
+	}
+
+	if rowsAffected == 0 {
+		return rest_err.NewNotFoundError("Ticket não encontrado para atualizar Asana Task ID")
+	}
+
+	log.Println("Task ID do Asana atualizado com sucesso no MySQL")
 	return nil
 }

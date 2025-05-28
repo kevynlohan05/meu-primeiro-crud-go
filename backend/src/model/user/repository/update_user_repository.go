@@ -1,37 +1,70 @@
 package repository
 
 import (
-	"context"
+	"fmt"
 	"log"
-	"os"
+	"encoding/json"
 
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/rest_err"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model/converter"
 	userModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/user"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (ur *userRepository) UpdateUser(userId string, userDomain userModel.UserDomainInterface) *rest_err.RestErr {
-	collection_name := os.Getenv(MONGODB_USER_COLLECTION)
-	collection := ur.databaseConnection.Collection(collection_name)
-
 	log.Println("Converting domain to entity")
-
 	value := converter.ConvertUserDomainToEntity(userDomain)
-	userIdHex, _ := primitive.ObjectIDFromHex(userId)
-
-	filter := bson.D{{Key: "_id", Value: userIdHex}}
-	update := bson.D{{Key: "$set", Value: value}}
-
-	log.Println("Update user into MongoDB")
-	_, err := collection.UpdateOne(context.Background(), filter, update)
-	if err != nil {
-		log.Println("Error Update user into MongoDB:", err)
-		return rest_err.NewInternalServerError(err.Error())
-
+	if value == nil {
+		log.Println("Error: Conversion to entity failed")
+		return rest_err.NewInternalServerError("Failed to convert domain to entity")
 	}
 
-	log.Println("Update user successfully into MongoDB")
+	projectsJSON, err := json.Marshal(value.Projects)
+	if err != nil {
+		log.Println("Error marshalling projects:", err)
+		return rest_err.NewInternalServerError("Failed to serialize user projects")
+	}
+
+	query := `
+		UPDATE users SET
+			name = ?,
+			email = ?,
+			password = ?,
+			phone = ?,
+			enterprise = ?,
+			department = ?,
+			projects = ?,
+			role = ?
+		WHERE id = ?
+	`
+
+	result, err := ur.db.Exec(query,
+		value.Name,
+		value.Email,
+		value.Password,
+		value.Phone,
+		value.Enterprise,
+		value.Department,
+		string(projectsJSON),
+		value.Role,
+		userId,
+	)
+
+	if err != nil {
+		log.Println("Error updating user in MySQL:", err)
+		return rest_err.NewInternalServerError(fmt.Sprintf("Error updating user: %v", err))
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Println("Error getting affected rows:", err)
+		return rest_err.NewInternalServerError("Error verifying update operation")
+	}
+
+	if rowsAffected == 0 {
+		log.Println("No user found with id:", userId)
+		return rest_err.NewNotFoundError(fmt.Sprintf("User with id %s not found", userId))
+	}
+
+	log.Println("User updated successfully in MySQL")
 	return nil
 }

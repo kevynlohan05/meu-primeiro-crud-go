@@ -13,7 +13,11 @@ require (
 
 require github.com/golang-jwt/jwt v3.2.2+incompatible
 
-require github.com/gin-contrib/cors v1.7.5 // indirect
+require (
+	filippo.io/edwards25519 v1.1.0 // indirect
+	github.com/gin-contrib/cors v1.7.5 // indirect
+	github.com/go-sql-driver/mysql v1.9.2 // indirect
+)
 
 require (
 	github.com/bytedance/sonic v1.13.2 // indirect
