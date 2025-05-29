@@ -21,7 +21,7 @@ func (tr *ticketRepository) CreateTicket(ticketDomain ticketModel.TicketDomainIn
 
 	query := `
 		INSERT INTO tickets 
-		(title, request_user, sector, description, request_type, priority, attachment_url, asana_task_id, status)
+		(title, request_user, sector, description, request_type, priority, attachment_urls, asana_task_id, status)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 

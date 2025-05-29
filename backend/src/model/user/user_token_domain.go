@@ -105,12 +105,15 @@ func VerifyTokenMiddleware(c *gin.Context) {
 	}
 
 	userID := claims["id"].(string)
+	userName := claims["name"].(string)
 	userEmail := claims["email"].(string)
 	userDepartment := claims["department"].(string)
 	userRole := claims["role"].(string)
 
 	// Salvando no contexto para uso posterior
+
 	c.Set("userID", userID)
+	c.Set("userName", userName)
 	c.Set("userEmail", userEmail)
 	c.Set("userDepartment", userDepartment)
 	c.Set("role", userRole)

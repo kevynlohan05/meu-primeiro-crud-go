@@ -3,7 +3,6 @@ package repository
 import (
 	"fmt"
 	"log"
-	"encoding/json"
 
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/rest_err"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model/converter"
@@ -18,12 +17,6 @@ func (ur *userRepository) UpdateUser(userId string, userDomain userModel.UserDom
 		return rest_err.NewInternalServerError("Failed to convert domain to entity")
 	}
 
-	projectsJSON, err := json.Marshal(value.Projects)
-	if err != nil {
-		log.Println("Error marshalling projects:", err)
-		return rest_err.NewInternalServerError("Failed to serialize user projects")
-	}
-
 	query := `
 		UPDATE users SET
 			name = ?,
@@ -32,7 +25,6 @@ func (ur *userRepository) UpdateUser(userId string, userDomain userModel.UserDom
 			phone = ?,
 			enterprise = ?,
 			department = ?,
-			projects = ?,
 			role = ?
 		WHERE id = ?
 	`
@@ -44,7 +36,6 @@ func (ur *userRepository) UpdateUser(userId string, userDomain userModel.UserDom
 		value.Phone,
 		value.Enterprise,
 		value.Department,
-		string(projectsJSON),
 		value.Role,
 		userId,
 	)
@@ -65,6 +56,35 @@ func (ur *userRepository) UpdateUser(userId string, userDomain userModel.UserDom
 		return rest_err.NewNotFoundError(fmt.Sprintf("User with id %s not found", userId))
 	}
 
-	log.Println("User updated successfully in MySQL")
+	log.Println("Updating user_projects")
+
+	_, err = ur.db.Exec("DELETE FROM user_projects WHERE user_id = ?", userId)
+	if err != nil {
+		log.Println("Erro ao remover projetos antigos:", err)
+		return rest_err.NewInternalServerError("Erro ao atualizar os projetos do usuário")
+	}
+
+	for _, projectName := range userDomain.GetProjects() {
+		var projectID int
+
+		err := ur.db.QueryRow("SELECT id FROM projects WHERE name = ?", projectName).Scan(&projectID)
+		if err != nil {
+			res, err := ur.db.Exec("INSERT INTO projects (name) VALUES (?)", projectName)
+			if err != nil {
+				log.Println("Erro ao inserir novo projeto:", err)
+				continue
+			}
+			lastID, _ := res.LastInsertId()
+			projectID = int(lastID)
+		}
+
+		_, err = ur.db.Exec("INSERT INTO user_projects (user_id, project_id) VALUES (?, ?)", userId, projectID)
+		if err != nil {
+			log.Println("Erro ao relacionar projeto com usuário:", err)
+			continue
+		}
+	}
+
+	log.Println("User and projects updated successfully")
 	return nil
 }

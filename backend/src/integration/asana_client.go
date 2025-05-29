@@ -48,7 +48,7 @@ func CreateAsanaTask(ticket ticketModel.TicketDomainInterface) (string, error) {
 
 	// Monta a descrição completa com todas as informações
 	notes := fmt.Sprintf(
-		"Título da solicitação: \n%s\n\nNome do solicitante: \n%s\n\nSetor do solicitante: \n%s\n\nDetalhe da solicitação: \n%s\n\nTipo de solicitação: \n%s\n\nPrioridade: \n%s",
+		"Título da solicitação: \n%s\n\nEmail do solicitante: \n%s\n\nSetor do solicitante: \n%s\n\nDetalhe da solicitação: \n%s\n\nTipo de solicitação: \n%s\n\nPrioridade: \n%s",
 		ticket.GetTitle(),
 		ticket.GetRequestUser(),
 		ticket.GetSector(),

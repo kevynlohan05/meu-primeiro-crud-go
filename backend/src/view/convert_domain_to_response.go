@@ -2,6 +2,7 @@ package view
 
 import (
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/model/response"
+	projectModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/projects"
 	ticketModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket"
 	userModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/user"
 )
@@ -48,5 +49,13 @@ func ConvertTicketDomainToResponse(ticketDomain ticketModel.TicketDomainInterfac
 		AsanaTaskID:    ticketDomain.GetAsanaTaskID(),
 		Comments:       commentsResponse,
 		Projects:       ticketDomain.GetProjects(),
+	}
+}
+
+func ConvertProjectDomainToResponse(projectDomain projectModel.ProjectDomainInterface) response.ProjectResponse {
+	return response.ProjectResponse{
+		ID:      projectDomain.GetID(),
+		Name:    projectDomain.GetName(),
+		IdAsana: projectDomain.GetIdAsana(),
 	}
 }

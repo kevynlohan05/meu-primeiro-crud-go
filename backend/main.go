@@ -9,9 +9,12 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/database/mysql"
+	controllerProject "github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/project"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/routes"
 	controllerTicket "github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/ticket"
 	controllerUser "github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/user"
+	repositoryProject "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/projects/repository"
+	projectService "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/projects/service"
 	repositoryTicket "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket/repository"
 	ticketService "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket/service"
 	repositoryUser "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/user/repository"
@@ -37,9 +40,13 @@ func main() {
 	userServiceInstance := userService.NewUserDomainService(repoUser)
 	userController := controllerUser.NewUserControllerInterface(userServiceInstance)
 
-	repoTicket := repositoryTicket.NewTicketRepository(database) // Aqui a função espera *sql.DB
+	repoTicket := repositoryTicket.NewTicketRepository(database)
 	ticketServiceInstance := ticketService.NewTicketDomainService(userServiceInstance, repoTicket)
 	ticketController := controllerTicket.NewTicketControllerInterface(ticketServiceInstance)
+
+	repoProject := repositoryProject.NewProjectRepository(database)
+	projectServiceInstance := projectService.NewProjectService(repoProject)
+	projectController := controllerProject.NewProjectControllerInterface(projectServiceInstance)
 
 	// Setup Gin com CORS
 	router := gin.Default()
@@ -53,7 +60,7 @@ func main() {
 	}))
 
 	// Inicializa rotas
-	routes.InitRoutes(&router.RouterGroup, userController, ticketController)
+	routes.InitRoutes(&router.RouterGroup, userController, ticketController, projectController)
 
 	// Inicia servidor
 	if err := router.Run(":8080"); err != nil {

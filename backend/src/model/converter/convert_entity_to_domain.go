@@ -2,22 +2,18 @@ package converter
 
 import (
 	"encoding/json"
-	"log"
 	"fmt"
+	"log"
 
+	projectModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/projects"
+	projectEntity "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/projects/repository/entity"
 	ticketModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket"
 	ticketEntity "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket/repository/entity"
 	userModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/user"
 	userEntity "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/user/repository/entity"
 )
 
-func ConvertUserEntityToDomain(entity userEntity.UserEntity) userModel.UserDomainInterface {
-	var projects []string
-	if err := json.Unmarshal([]byte(entity.Projects), &projects); err != nil {
-		log.Printf("Error unmarshaling projects JSON: %v\n", err)
-		projects = []string{} 
-	}
-
+func ConvertUserEntityToDomain(entity userEntity.UserEntity, projects []string) userModel.UserDomainInterface {
 	domain := userModel.NewUserDomain(
 		entity.Name,
 		entity.Email,
@@ -30,10 +26,6 @@ func ConvertUserEntityToDomain(entity userEntity.UserEntity) userModel.UserDomai
 	)
 
 	domain.SetID(fmt.Sprintf("%d", entity.ID))
-
-	log.Println("Domain after setting ID:")
-	log.Printf("Domain: %+v\n", domain)
-
 	return domain
 }
 
@@ -44,7 +36,6 @@ func ConvertTicketEntityToDomain(entity ticketEntity.TicketEntity) ticketModel.T
 		log.Printf("Error unmarshaling attachment URLs: %v\n", err)
 		attachmentURLs = []string{} // fallback vazio
 	}
-
 
 	domain := ticketModel.NewTicketDomain(
 		entity.Title,
@@ -72,5 +63,15 @@ func ConvertTicketEntityToDomain(entity ticketEntity.TicketEntity) ticketModel.T
 	log.Println("Domain after setting ID:")
 	log.Printf("Domain: %+v\n", domain)
 
+	return domain
+}
+
+func ConvertProjectEntityToDomain(entity projectEntity.ProjectEntity) projectModel.ProjectDomainInterface {
+	domain := projectModel.NewProjectDomain(
+		entity.Name,
+		entity.IdAsana,
+	)
+
+	domain.SetID(fmt.Sprintf("%d", entity.ID))
 	return domain
 }

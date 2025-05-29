@@ -2,8 +2,11 @@ package converter
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 
+	projectModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/projects"
+	projectEntity "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/projects/repository/entity"
 	ticketModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket"
 	ticketEntity "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket/repository/entity"
 	userModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/user"
@@ -11,12 +14,6 @@ import (
 )
 
 func ConvertUserDomainToEntity(domain userModel.UserDomainInterface) *userEntity.UserEntity {
-	projectsJSON, err := json.Marshal(domain.GetProjects())
-	if err != nil {
-		log.Printf("Error marshaling projects: %v\n", err)
-		return nil
-	}
-
 	entity := &userEntity.UserEntity{
 		Name:       domain.GetName(),
 		Email:      domain.GetEmail(),
@@ -24,12 +21,15 @@ func ConvertUserDomainToEntity(domain userModel.UserDomainInterface) *userEntity
 		Phone:      domain.GetPhone(),
 		Enterprise: domain.GetEnterprise(),
 		Department: domain.GetDepartment(),
-		Projects:   string(projectsJSON),
 		Role:       domain.GetRole(),
 	}
 
-	log.Println("Converted domain to entity successfully:")
-	log.Printf("Entity: %+v\n", entity)
+	if domain.GetID() != "" {
+		var id int
+		if _, err := fmt.Sscanf(domain.GetID(), "%d", &id); err == nil {
+			entity.ID = id
+		}
+	}
 
 	return entity
 }
@@ -62,6 +62,22 @@ func ConvertTicketDomainToEntity(domain ticketModel.TicketDomainInterface) *tick
 
 	log.Println("Converted domain to entity successfully:")
 	log.Printf("Entity: %+v\n", entity)
+
+	return entity
+}
+
+func ConvertProjectDomainToEntity(domain projectModel.ProjectDomainInterface) *projectEntity.ProjectEntity {
+	entity := &projectEntity.ProjectEntity{
+		Name:    domain.GetName(),
+		IdAsana: domain.GetIdAsana(),
+	}
+
+	if domain.GetID() != "" {
+		var id int
+		if _, err := fmt.Sscanf(domain.GetID(), "%d", &id); err == nil {
+			entity.ID = id
+		}
+	}
 
 	return entity
 }

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/rest_err"
@@ -13,14 +12,13 @@ import (
 
 func (ur *userRepository) FindUserByEmail(email string) (userModel.UserDomainInterface, *rest_err.RestErr) {
 	query := `
-		SELECT id, name, email, password, phone, enterprise, department, role, projects
+		SELECT id, name, email, password, phone, enterprise, department, role
 		FROM users WHERE email = ?
 	`
 
 	row := ur.db.QueryRow(query, email)
 
 	var entity userEntity.UserEntity
-	var projectsJSON string
 
 	err := row.Scan(
 		&entity.ID,
@@ -31,7 +29,6 @@ func (ur *userRepository) FindUserByEmail(email string) (userModel.UserDomainInt
 		&entity.Enterprise,
 		&entity.Department,
 		&entity.Role,
-		&projectsJSON,
 	)
 
 	if err != nil {
@@ -41,23 +38,23 @@ func (ur *userRepository) FindUserByEmail(email string) (userModel.UserDomainInt
 		return nil, rest_err.NewInternalServerError(fmt.Sprintf("Error finding user: %s", err.Error()))
 	}
 
-	if err := json.Unmarshal([]byte(projectsJSON), &entity.Projects); err != nil {
-		return nil, rest_err.NewInternalServerError("Failed to parse user projects")
+	projects, restErr := ur.getUserProjects(entity.ID)
+	if restErr != nil {
+		return nil, restErr
 	}
 
-	return converter.ConvertUserEntityToDomain(entity), nil
+	return converter.ConvertUserEntityToDomain(entity, projects), nil
 }
 
 func (ur *userRepository) FindUserById(id string) (userModel.UserDomainInterface, *rest_err.RestErr) {
 	query := `
-		SELECT id, name, email, password, phone, enterprise, department, role, projects
+		SELECT id, name, email, password, phone, enterprise, department, role
 		FROM users WHERE id = ?
 	`
 
 	row := ur.db.QueryRow(query, id)
 
 	var entity userEntity.UserEntity
-	var projectsJSON string
 
 	err := row.Scan(
 		&entity.ID,
@@ -68,7 +65,6 @@ func (ur *userRepository) FindUserById(id string) (userModel.UserDomainInterface
 		&entity.Enterprise,
 		&entity.Department,
 		&entity.Role,
-		&projectsJSON,
 	)
 
 	if err != nil {
@@ -78,23 +74,23 @@ func (ur *userRepository) FindUserById(id string) (userModel.UserDomainInterface
 		return nil, rest_err.NewInternalServerError(fmt.Sprintf("Error finding user by id: %s", err.Error()))
 	}
 
-	if err := json.Unmarshal([]byte(projectsJSON), &entity.Projects); err != nil {
-		return nil, rest_err.NewInternalServerError("Failed to parse user projects")
+	projects, restErr := ur.getUserProjects(entity.ID)
+	if restErr != nil {
+		return nil, restErr
 	}
 
-	return converter.ConvertUserEntityToDomain(entity), nil
+	return converter.ConvertUserEntityToDomain(entity, projects), nil
 }
 
 func (ur *userRepository) FindUserByEmailAndPassword(email, password string) (userModel.UserDomainInterface, *rest_err.RestErr) {
 	query := `
-		SELECT id, name, email, password, phone, enterprise, department, role, projects
+		SELECT id, name, email, password, phone, enterprise, department, role
 		FROM users WHERE email = ? AND password = ?
 	`
 
 	row := ur.db.QueryRow(query, email, password)
 
 	var entity userEntity.UserEntity
-	var projectsJSON string
 
 	err := row.Scan(
 		&entity.ID,
@@ -105,7 +101,6 @@ func (ur *userRepository) FindUserByEmailAndPassword(email, password string) (us
 		&entity.Enterprise,
 		&entity.Department,
 		&entity.Role,
-		&projectsJSON,
 	)
 
 	if err != nil {
@@ -115,9 +110,34 @@ func (ur *userRepository) FindUserByEmailAndPassword(email, password string) (us
 		return nil, rest_err.NewInternalServerError(fmt.Sprintf("Error finding user: %s", err.Error()))
 	}
 
-	if err := json.Unmarshal([]byte(projectsJSON), &entity.Projects); err != nil {
-		return nil, rest_err.NewInternalServerError("Failed to parse user projects")
+	projects, restErr := ur.getUserProjects(entity.ID)
+	if restErr != nil {
+		return nil, restErr
 	}
 
-	return converter.ConvertUserEntityToDomain(entity), nil
+	return converter.ConvertUserEntityToDomain(entity, projects), nil
+}
+
+func (ur *userRepository) getUserProjects(userID int) ([]string, *rest_err.RestErr) {
+	query := `
+		SELECT p.name FROM projects p
+		INNER JOIN user_projects up ON up.project_id = p.id
+		WHERE up.user_id = ?
+	`
+
+	rows, err := ur.db.Query(query, userID)
+	if err != nil {
+		return nil, rest_err.NewInternalServerError("Erro ao buscar projetos do usuário")
+	}
+	defer rows.Close()
+
+	var projects []string
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err == nil {
+			projects = append(projects, name)
+		}
+	}
+
+	return projects, nil
 }
