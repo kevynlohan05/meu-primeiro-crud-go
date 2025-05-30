@@ -51,4 +51,36 @@ func (pr *projectRepository) FindProjectByName(name string) (projectModel.Projec
 	return converter.ConvertProjectEntityToDomain(entity), nil
 }
 
-
+func (pr *projectRepository) FindAllProjects() ([]projectModel.ProjectDomainInterface, *rest_err.RestErr) {
+	query := `
+		SELECT id, name, asana_project_id
+		FROM projects
+	`
+	rows, err := pr.db.Query(query)
+	if err != nil {
+		return nil, rest_err.NewInternalServerError("Error finding projects: " + err.Error())
+	}
+	defer rows.Close()
+	var projects []projectModel.ProjectDomainInterface
+	for rows.Next() {
+		var entity ProjectEntity.ProjectEntity
+		if err := rows.Scan(
+			&entity.ID,
+			&entity.Name,
+			&entity.IdAsana,
+		); err != nil {
+			return nil, rest_err.NewInternalServerError("Error scanning project: " + err.Error())
+		}
+		project := converter.ConvertProjectEntityToDomain(entity)
+		if project != nil {
+			projects = append(projects, project)
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return nil, rest_err.NewInternalServerError("Error iterating over projects: " + err.Error())
+	}
+	if len(projects) == 0 {
+		return nil, rest_err.NewNotFoundError("No projects found")
+	}
+	return projects, nil
+}

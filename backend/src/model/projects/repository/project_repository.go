@@ -23,4 +23,5 @@ type ProjectRepository interface {
 	DeleteProject(projectId string) *rest_err.RestErr
 	FindProjectById(id string) (projectModel.ProjectDomainInterface, *rest_err.RestErr)
 	FindProjectByName(name string) (projectModel.ProjectDomainInterface, *rest_err.RestErr)
+	FindAllProjects() ([]projectModel.ProjectDomainInterface, *rest_err.RestErr)
 }

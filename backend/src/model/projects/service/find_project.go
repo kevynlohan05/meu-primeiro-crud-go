@@ -22,3 +22,17 @@ func (pd *projectDomainService) FindProjectByNameServices(name string) (projectM
 
 	return pd.projectRepository.FindProjectByName(name)
 }
+
+func (pd *projectDomainService) FindAllProjectsServices() ([]projectModel.ProjectDomainInterface, *rest_err.RestErr) {
+
+	projects, err := pd.projectRepository.FindAllProjects()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(projects) == 0 {
+		return nil, rest_err.NewNotFoundError("No projects found") // Return a not found error if no projects are found
+	}
+
+	return projects, nil
+}

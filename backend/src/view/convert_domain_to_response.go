@@ -54,8 +54,7 @@ func ConvertTicketDomainToResponse(ticketDomain ticketModel.TicketDomainInterfac
 
 func ConvertProjectDomainToResponse(projectDomain projectModel.ProjectDomainInterface) response.ProjectResponse {
 	return response.ProjectResponse{
-		ID:      projectDomain.GetID(),
-		Name:    projectDomain.GetName(),
-		IdAsana: projectDomain.GetIdAsana(),
+		ID:   projectDomain.GetID(),
+		Name: projectDomain.GetName(),
 	}
 }

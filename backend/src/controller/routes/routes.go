@@ -28,8 +28,9 @@ func InitRoutes(r *gin.RouterGroup, userController controllerUser.UserController
 	r.DELETE("/ticket/deleteTicket/:ticketId", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, ticketController.DeleteTicket)
 
 	r.POST("/project/createProject", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, projectController.CreateProject)
-	r.GET("/project/getProjectById/:projectId", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, projectController.FindProjectById)
-	r.GET("/project/getProjectByName/:projectName", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, projectController.FindProjectByName)
+	r.GET("/project/getProjectById/:projectId", userModel.VerifyTokenMiddleware, projectController.FindProjectById)
+	r.GET("/project/getProjectByName/:projectName", userModel.VerifyTokenMiddleware, projectController.FindProjectByName)
+	r.GET("/project/getAllProjects", userModel.VerifyTokenMiddleware, projectController.FindAllProjects)
 	r.PUT("/project/updateProject/:projectId", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, projectController.UpdateProject)
 	r.DELETE("/project/deleteProject/:projectId", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, projectController.DeleteProject)
 

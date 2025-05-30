@@ -17,6 +17,7 @@ type ProjectControllerInterface interface {
 	DeleteProject(c *gin.Context)
 	FindProjectById(c *gin.Context)
 	FindProjectByName(c *gin.Context)
+	FindAllProjects(c *gin.Context)
 }
 
 type projectControllerInterface struct {
