@@ -48,7 +48,7 @@ func ConvertTicketDomainToResponse(ticketDomain ticketModel.TicketDomainInterfac
 		AttachmentURLs: ticketDomain.GetAttachmentURLs(),
 		AsanaTaskID:    ticketDomain.GetAsanaTaskID(),
 		Comments:       commentsResponse,
-		Projects:       ticketDomain.GetProjects(),
+		ProjectName:    ticketDomain.GetProjectName(),
 	}
 }
 

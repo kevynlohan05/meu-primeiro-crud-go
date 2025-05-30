@@ -11,12 +11,15 @@ require (
 	go.mongodb.org/mongo-driver v1.17.3
 )
 
-require github.com/golang-jwt/jwt v3.2.2+incompatible
+require (
+	github.com/gin-contrib/cors v1.7.5
+	github.com/go-sql-driver/mysql v1.9.2
+	github.com/golang-jwt/jwt v3.2.2+incompatible
+)
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/gin-contrib/cors v1.7.5 // indirect
-	github.com/go-sql-driver/mysql v1.9.2 // indirect
+	github.com/kr/text v0.2.0 // indirect
 )
 
 require (
@@ -27,7 +30,6 @@ require (
 	github.com/gin-contrib/sse v1.1.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
-	github.com/google/uuid v1.6.0
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect

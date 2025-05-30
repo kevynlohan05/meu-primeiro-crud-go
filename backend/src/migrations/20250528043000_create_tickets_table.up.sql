@@ -6,9 +6,14 @@ CREATE TABLE IF NOT EXISTS tickets (
   description TEXT,
   request_type VARCHAR(100),
   priority VARCHAR(50),
-  attachment_urls TEXT, -- armazenar lista como JSON ou string separada
+  attachment_urls TEXT,
   status VARCHAR(50),
   asana_task_id VARCHAR(100),
-  projects TEXT, -- string ou JSON
-  comments TEXT -- armazenado como JSON
+  project_id INT, 
+  comments TEXT, 
+  CONSTRAINT fk_project
+    FOREIGN KEY (project_id)
+    REFERENCES projects(id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
 );

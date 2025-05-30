@@ -37,19 +37,20 @@ func ConvertTicketEntityToDomain(entity ticketEntity.TicketEntity) ticketModel.T
 		attachmentURLs = []string{} // fallback vazio
 	}
 
-	domain := ticketModel.NewTicketDomain(
+	domain := ticketModel.NewTicketDomainFromEntity(
 		entity.Title,
 		entity.RequestUser,
 		entity.Sector,
 		entity.Description,
 		entity.RequestType,
 		entity.Priority,
-		entity.Projects,
 		attachmentURLs,
+		entity.ProjectID,
 	)
 
 	domain.SetID(fmt.Sprintf("%d", entity.ID))
 	domain.SetAsanaTaskID(entity.AsanaTaskID)
+	domain.SetStatus(entity.Status)
 
 	var comments []ticketModel.CommentDomain
 	err = json.Unmarshal([]byte(entity.Comments), &comments)
@@ -59,7 +60,6 @@ func ConvertTicketEntityToDomain(entity ticketEntity.TicketEntity) ticketModel.T
 	}
 	domain.SetComments(comments)
 
-	// Logando o domínio após a definição do ID
 	log.Println("Domain after setting ID:")
 	log.Printf("Domain: %+v\n", domain)
 

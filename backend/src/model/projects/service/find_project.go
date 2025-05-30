@@ -36,3 +36,16 @@ func (pd *projectDomainService) FindAllProjectsServices() ([]projectModel.Projec
 
 	return projects, nil
 }
+
+func (pd *projectDomainService) FindProjectByAsanaIdServices(asanaId string) (projectModel.ProjectDomainInterface, *rest_err.RestErr) {
+	project, err := pd.projectRepository.FindProjectByAsanaId(asanaId)
+	if err != nil {
+		return nil, err
+	}
+
+	if project == nil {
+		return nil, rest_err.NewNotFoundError("Project with Asana ID " + asanaId + " not found")
+	}
+
+	return project, nil
+}

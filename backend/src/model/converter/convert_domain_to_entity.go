@@ -50,7 +50,7 @@ func ConvertTicketDomainToEntity(domain ticketModel.TicketDomainInterface) *tick
 		Priority:       domain.GetPriority(),
 		AttachmentURLs: string(attachmentURLsJSON),
 		Status:         domain.GetStatus(),
-		Projects:       domain.GetProjects(),
+		ProjectID:      domain.GetProjectID(),
 	}
 
 	commentsJSON, err := json.Marshal(domain.GetComments())

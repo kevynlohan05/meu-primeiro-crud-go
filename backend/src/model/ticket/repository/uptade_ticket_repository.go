@@ -21,29 +21,32 @@ func (tr *ticketRepository) UpdateTicket(ticketId string, ticketDomain ticketMod
 		return rest_err.NewInternalServerError("Falha na conversão do domínio para entidade")
 	}
 
-	// Query de update (ajuste os campos conforme seu schema)
 	query := `UPDATE tickets SET 
 		title = ?, 
 		request_user = ?, 
-		department = ?, 
+		sector = ?, 
 		description = ?, 
 		request_type = ?, 
 		priority = ?, 
-		attachment_url = ?, 
+		attachment_urls = ?, 
 		asana_task_id = ?, 
-		status = ? 
+		status = ?, 
+		project_id = ?, 
+		comments = ?
 		WHERE id = ?`
 
 	result, err := tr.databaseConnection.Exec(query,
 		value.Title,
 		value.RequestUser,
-		value.Department,
+		value.Sector,
 		value.Description,
 		value.RequestType,
 		value.Priority,
 		value.AttachmentURLs,
 		value.AsanaTaskID,
 		value.Status,
+		value.ProjectID,
+		value.Comments,
 		ticketIDInt,
 	)
 

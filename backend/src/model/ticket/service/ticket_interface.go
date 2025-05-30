@@ -2,21 +2,24 @@ package service
 
 import (
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/rest_err"
+	projectService "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/projects/service"
 	ticketModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket"
 	repositoryTicket "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket/repository"
 	userService "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/user/service"
 )
 
-func NewTicketDomainService(userService userService.UserDomainService, ticketRepository repositoryTicket.TicketRepository) TicketDomainService {
+func NewTicketDomainService(userService userService.UserDomainService, ticketRepository repositoryTicket.TicketRepository, projectService projectService.ProjectDomainService) TicketDomainService {
 	return &ticketDomainService{
 		ticketRepository: ticketRepository,
 		userService:      userService,
+		projectService:   projectService,
 	}
 }
 
 type ticketDomainService struct {
 	ticketRepository repositoryTicket.TicketRepository
 	userService      userService.UserDomainService
+	projectService   projectService.ProjectDomainService
 }
 
 type TicketDomainService interface {

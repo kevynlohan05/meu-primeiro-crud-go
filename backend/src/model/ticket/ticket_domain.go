@@ -12,13 +12,29 @@ type ticketDomain struct {
 	asanaTaskID    string
 	status         string
 	comments       []CommentDomain
-	projects       string
+	projectId      int64
+	projectName    string
+	asanaProjectID string
 }
 
 type CommentDomain struct {
 	Author    string
 	Message   string
 	Timestamp int64
+}
+
+func (td *ticketDomain) SetProjectName(projectName string) {
+	td.projectName = projectName
+}
+func (td *ticketDomain) GetProjectName() string {
+	return td.projectName
+}
+
+func (td *ticketDomain) SetAsanaProjectID(asanaProjectID string) {
+	td.asanaProjectID = asanaProjectID
+}
+func (td *ticketDomain) GetAsanaProjectID() string {
+	return td.asanaProjectID
 }
 
 func (td *ticketDomain) SetID(id string) {
@@ -33,8 +49,8 @@ func (td *ticketDomain) GetStatus() string {
 	return td.status
 }
 
-func (td *ticketDomain) GetProjects() string {
-	return td.projects
+func (td *ticketDomain) GetProjectID() int64 {
+	return td.projectId
 }
 
 func (td *ticketDomain) SetAsanaTaskID(asanaTaskID string) {
@@ -87,4 +103,8 @@ func (td *ticketDomain) SetComments(comments []CommentDomain) {
 
 func (td *ticketDomain) AddComment(comment CommentDomain) {
 	td.comments = append(td.comments, comment)
+}
+
+func (td *ticketDomain) SetProjectID(projectID int64) {
+	td.projectId = projectID
 }

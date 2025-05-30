@@ -5,7 +5,7 @@ type TicketRequest struct {
 	Description string `json:"description" binding:"required,min=3,max=1000"`
 	RequestType string `json:"request_type" binding:"required"` // Ex: "Bugs", "Dúvidas", etc.
 	Priority    string `json:"priority" binding:"required"`     // Ex: "Baixa", "Média", "Alta"
-	Project     string `json:"project" binding:"required,oneof=teste suporte"`
+	Project     string `json:"project" binding:"required"`
 }
 
 type TicketUpdateRequest struct {

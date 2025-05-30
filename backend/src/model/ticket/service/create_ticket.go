@@ -3,6 +3,7 @@ package service
 import (
 	"log"
 	"os"
+	"strconv"
 
 	integrationAsana "github.com/kevynlohan05/meu-primeiro-crud-go/src/integration"
 
@@ -11,37 +12,52 @@ import (
 )
 
 func (ud *ticketDomainService) CreateTicket(ticketDomain ticketModel.TicketDomainInterface) (ticketModel.TicketDomainInterface, *rest_err.RestErr) {
-	ticketDomain.SetStatus("Novas")
 	log.Println("Starting ticket creation process")
+	ticketDomain.SetStatus("Novas")
 
-	// Fetch user by email
+	projectName := ticketDomain.GetProjectName()
+
 	user, err := ud.userService.FindUserByEmailServices(ticketDomain.GetRequestUser())
 	if err != nil {
 		log.Println("Error fetching user by email:", err)
 		return nil, err
 	}
 
-	// Check if user has access to the selected project
 	hasAccess := false
-	for _, project := range user.GetProjects() {
-		if project == ticketDomain.GetProjects() {
+	for _, userProject := range user.GetProjects() {
+		if userProject == projectName {
 			hasAccess = true
 			break
 		}
 	}
-
 	if !hasAccess {
 		log.Println("User is not allowed to create a ticket in this project")
 		return nil, rest_err.NewBadRequestError("User is not allowed to create a ticket in this project")
 	}
 
-	// Create the ticket in the repository
+	project, err := ud.projectService.FindProjectByNameServices(projectName)
+	if err != nil {
+		log.Println("Project not found:", err)
+		return nil, rest_err.NewBadRequestError("Invalid project name")
+	}
+	ticketDomain.SetAsanaProjectID(project.GetIdAsana())
+
+	projectIDStr := project.GetID()
+	var projectIDInt int64
+	if parsedID, err := strconv.ParseInt(projectIDStr, 10, 64); err == nil {
+		projectIDInt = parsedID
+	} else {
+		log.Println("Error converting project ID to int64:", err)
+		return nil, rest_err.NewInternalServerError("Failed to convert project ID")
+	}
+	ticketDomain.SetProjectID(projectIDInt)
+	log.Println(ticketDomain.GetAsanaProjectID(), "is the Asana project ID")
+
 	ticketDomainRepository, err := ud.ticketRepository.CreateTicket(ticketDomain)
 	if err != nil {
 		log.Println("Repository error while creating ticket:", err)
 		return nil, err
 	}
-
 	if ticketDomainRepository == nil {
 		log.Println("Repository returned nil while creating ticket")
 		return nil, rest_err.NewInternalServerError("Failed to create ticket in repository")
@@ -49,30 +65,35 @@ func (ud *ticketDomainService) CreateTicket(ticketDomain ticketModel.TicketDomai
 
 	log.Println("Ticket successfully created")
 
-	// Launch asynchronous process to create the Asana task
 	go func(ticket ticketModel.TicketDomainInterface) {
 		log.Println("Starting Asana task creation")
-		taskID, err := integrationAsana.CreateAsanaTask(ticket)
+
+		projectIDStr := strconv.FormatInt(ticket.GetProjectID(), 10)
+		project, err := ud.projectService.FindProjectByIdServices(projectIDStr)
 		if err != nil {
-			log.Println("Error while creating Asana task:", err)
+			log.Println("Erro ao buscar projeto para obter AsanaProjectID:", err)
 			return
 		}
 
+		ticket.SetAsanaProjectID(project.GetIdAsana())
+
+		taskID, RestErr := integrationAsana.CreateAsanaTask(ticket)
+		if RestErr != nil {
+			log.Println("Erro ao criar tarefa no Asana:", err)
+			return
+		}
 		log.Printf("Asana task successfully created! ID: %s\n", taskID)
 
-		// Update ticket with Asana task ID
 		if restErr := ud.ticketRepository.UpdateAsanaTaskID(ticket.GetID(), taskID); restErr != nil {
-			log.Println("Error updating ticket with Asana task ID:", restErr)
+			log.Println("Erro ao atualizar ticket com ID da tarefa Asana:", restErr)
 			return
 		}
-		log.Println("Ticket updated with Asana task ID")
+		log.Println("Ticket atualizado com ID da tarefa Asana")
 
-		// 🔽 Upload dos arquivos anexados
 		for _, filePath := range ticket.GetAttachmentURLs() {
 			log.Println("Uploading file to Asana:", filePath)
-
-			err = integrationAsana.UploadAttachmentToAsana(taskID, filePath)
-			if err != nil {
+			RestErr = integrationAsana.UploadAttachmentToAsana(taskID, filePath)
+			if RestErr != nil {
 				log.Println("Erro ao enviar anexo para o Asana:", err)
 			} else {
 				log.Println("Arquivo enviado com sucesso ao Asana:", filePath)
@@ -85,6 +106,8 @@ func (ud *ticketDomainService) CreateTicket(ticketDomain ticketModel.TicketDomai
 			}
 		}
 	}(ticketDomainRepository)
+
+	ticketDomainRepository.SetProjectName(projectName)
 
 	return ticketDomainRepository, nil
 }

@@ -20,7 +20,8 @@ func (tr *ticketRepository) FindTicketById(id string) (ticketModel.TicketDomainI
 	}
 
 	// Query para buscar ticket pelo ID
-	query := `SELECT id, title, request_user, department, description, request_type, priority, attachment_url, asana_task_id, status FROM tickets WHERE id = ?`
+	query := `SELECT id, title, request_user, sector, description, request_type, priority, attachment_urls, asana_task_id, status, project_id, comments
+		  FROM tickets WHERE id = ?`
 
 	row := tr.databaseConnection.QueryRow(query, ticketId)
 
@@ -29,13 +30,15 @@ func (tr *ticketRepository) FindTicketById(id string) (ticketModel.TicketDomainI
 		&entity.ID,
 		&entity.Title,
 		&entity.RequestUser,
-		&entity.Department,
+		&entity.Sector,
 		&entity.Description,
 		&entity.RequestType,
 		&entity.Priority,
 		&entity.AttachmentURLs,
 		&entity.AsanaTaskID,
 		&entity.Status,
+		&entity.ProjectID,
+		&entity.Comments,
 	)
 
 	if err != nil {
@@ -49,8 +52,8 @@ func (tr *ticketRepository) FindTicketById(id string) (ticketModel.TicketDomainI
 }
 
 func (tr *ticketRepository) FindAllTicketsByEmail(email string) ([]ticketModel.TicketDomainInterface, *rest_err.RestErr) {
-	query := `SELECT id, title, request_user, department, description, request_type, priority, attachment_url, asana_task_id, status 
-			  FROM tickets WHERE request_user = ?`
+	query := `SELECT id, title, request_user, sector, description, request_type, priority, attachment_urls, asana_task_id, status, project_id, comments 
+		  FROM tickets WHERE request_user = ?`
 
 	rows, err := tr.databaseConnection.Query(query, email)
 	if err != nil {
@@ -67,13 +70,15 @@ func (tr *ticketRepository) FindAllTicketsByEmail(email string) ([]ticketModel.T
 			&entity.ID,
 			&entity.Title,
 			&entity.RequestUser,
-			&entity.Department,
+			&entity.Sector,
 			&entity.Description,
 			&entity.RequestType,
 			&entity.Priority,
 			&entity.AttachmentURLs,
 			&entity.AsanaTaskID,
 			&entity.Status,
+			&entity.ProjectID,
+			&entity.Comments,
 		)
 		if err != nil {
 			log.Println("Erro ao escanear ticket:", err)
@@ -90,7 +95,7 @@ func (tr *ticketRepository) FindAllTicketsByEmail(email string) ([]ticketModel.T
 }
 
 func (tr *ticketRepository) FindAllTickets() ([]ticketModel.TicketDomainInterface, *rest_err.RestErr) {
-	query := `SELECT id, title, request_user, department, description, request_type, priority, attachment_url, asana_task_id, status FROM tickets`
+	query := `SELECT id, title, request_user, sector, description, request_type, priority, attachment_urls, asana_task_id, status, project_id, comments FROM tickets`
 
 	rows, err := tr.databaseConnection.Query(query)
 	if err != nil {
@@ -107,13 +112,15 @@ func (tr *ticketRepository) FindAllTickets() ([]ticketModel.TicketDomainInterfac
 			&entity.ID,
 			&entity.Title,
 			&entity.RequestUser,
-			&entity.Department,
+			&entity.Sector,
 			&entity.Description,
 			&entity.RequestType,
 			&entity.Priority,
 			&entity.AttachmentURLs,
 			&entity.AsanaTaskID,
 			&entity.Status,
+			&entity.ProjectID,
+			&entity.Comments,
 		)
 		if err != nil {
 			log.Println("Erro ao escanear ticket:", err)

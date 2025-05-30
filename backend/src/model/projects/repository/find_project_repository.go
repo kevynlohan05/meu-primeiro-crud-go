@@ -84,3 +84,24 @@ func (pr *projectRepository) FindAllProjects() ([]projectModel.ProjectDomainInte
 	}
 	return projects, nil
 }
+
+func (pr *projectRepository) FindProjectByAsanaId(asanaId string) (projectModel.ProjectDomainInterface, *rest_err.RestErr) {
+	query := `
+		SELECT id, name, asana_project_id
+		FROM projects WHERE asana_project_id = ?
+	`
+	row := pr.db.QueryRow(query, asanaId)
+	var entity ProjectEntity.ProjectEntity
+	err := row.Scan(
+		&entity.ID,
+		&entity.Name,
+		&entity.IdAsana,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, rest_err.NewNotFoundError("Project with Asana ID " + asanaId + " not found")
+		}
+		return nil, rest_err.NewInternalServerError("Error finding project: " + err.Error())
+	}
+	return converter.ConvertProjectEntityToDomain(entity), nil
+}

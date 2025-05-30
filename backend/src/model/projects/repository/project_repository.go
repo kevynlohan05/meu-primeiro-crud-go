@@ -24,4 +24,5 @@ type ProjectRepository interface {
 	FindProjectById(id string) (projectModel.ProjectDomainInterface, *rest_err.RestErr)
 	FindProjectByName(name string) (projectModel.ProjectDomainInterface, *rest_err.RestErr)
 	FindAllProjects() ([]projectModel.ProjectDomainInterface, *rest_err.RestErr)
+	FindProjectByAsanaId(asanaId string) (projectModel.ProjectDomainInterface, *rest_err.RestErr)
 }

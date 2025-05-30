@@ -40,13 +40,13 @@ func main() {
 	userServiceInstance := userService.NewUserDomainService(repoUser)
 	userController := controllerUser.NewUserControllerInterface(userServiceInstance)
 
-	repoTicket := repositoryTicket.NewTicketRepository(database)
-	ticketServiceInstance := ticketService.NewTicketDomainService(userServiceInstance, repoTicket)
-	ticketController := controllerTicket.NewTicketControllerInterface(ticketServiceInstance)
-
 	repoProject := repositoryProject.NewProjectRepository(database)
 	projectServiceInstance := projectService.NewProjectService(repoProject)
 	projectController := controllerProject.NewProjectControllerInterface(projectServiceInstance)
+
+	repoTicket := repositoryTicket.NewTicketRepository(database)
+	ticketServiceInstance := ticketService.NewTicketDomainService(userServiceInstance, repoTicket, projectServiceInstance)
+	ticketController := controllerTicket.NewTicketControllerInterface(ticketServiceInstance)
 
 	// Setup Gin com CORS
 	router := gin.Default()

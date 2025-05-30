@@ -21,8 +21,8 @@ func (tr *ticketRepository) CreateTicket(ticketDomain ticketModel.TicketDomainIn
 
 	query := `
 		INSERT INTO tickets 
-		(title, request_user, sector, description, request_type, priority, attachment_urls, asana_task_id, status)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		(title, request_user, sector, description, request_type, priority, attachment_urls, asana_task_id, status, project_id)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
 	result, err := tr.databaseConnection.Exec(
@@ -36,6 +36,7 @@ func (tr *ticketRepository) CreateTicket(ticketDomain ticketModel.TicketDomainIn
 		value.AttachmentURLs,
 		value.AsanaTaskID,
 		value.Status,
+		value.ProjectID, // adicionado corretamente
 	)
 
 	if err != nil {
