@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Select from 'react-select';
 
 export function UserRegister() {
   const navigate = useNavigate();
+  const [projectsList, setProjectsList] = useState([]);
+  const [selectedProjects, setSelectedProjects] = useState([]);
 
   const [form, setForm] = useState({
     name: '',
@@ -12,16 +15,39 @@ export function UserRegister() {
     confirmPassword: '',
     phone: '',
     department: '',
-    projects: '',
     enterprise: '',
     role: '',
   });
 
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8080/project/getAllProjects', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const formattedProjects = response.data.map(project => ({
+          value: project.name,
+          label: project.name,
+        }));
+
+        setProjectsList(formattedProjects);
+      } catch (err) {
+        console.error('Erro ao buscar projetos:', err);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
   const handleCadastro = async (e) => {
@@ -43,7 +69,7 @@ export function UserRegister() {
           password: form.password,
           phone: form.phone,
           department: form.department,
-          projects: form.projects.split(',').map(p => p.trim()),
+          projects: selectedProjects.map(p => p.value),
           enterprise: form.enterprise,
           role: form.role,
         },
@@ -73,7 +99,20 @@ export function UserRegister() {
         <Input label="E-mail" type="email" name="email" value={form.email} onChange={handleChange} />
         <Input label="Telefone (apenas números)" name="phone" value={form.phone} onChange={handleChange} />
         <Input label="Departamento" name="department" value={form.department} onChange={handleChange} />
-        <Input label="Projetos (separados por vírgula)" name="projects" value={form.projects} onChange={handleChange} placeholder="ex: suporte, financeiro" />
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Projetos (selecione um ou mais):</label>
+          <Select
+            isMulti
+            name="projects"
+            options={projectsList}
+            className="basic-multi-select"
+            classNamePrefix="select"
+            onChange={setSelectedProjects}
+            value={selectedProjects}
+          />
+        </div>
+
         <Input label="Empresa" name="enterprise" value={form.enterprise} onChange={handleChange} />
 
         <div>
