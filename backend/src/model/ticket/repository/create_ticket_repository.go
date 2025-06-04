@@ -36,7 +36,7 @@ func (tr *ticketRepository) CreateTicket(ticketDomain ticketModel.TicketDomainIn
 		value.AttachmentURLs,
 		value.AsanaTaskID,
 		value.Status,
-		value.ProjectID, // adicionado corretamente
+		value.ProjectID,
 	)
 
 	if err != nil {

@@ -25,5 +25,5 @@ func (tc *ticketControllerInterface) DeleteTicket(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{"message": "Comment deleted successfully"})
 }

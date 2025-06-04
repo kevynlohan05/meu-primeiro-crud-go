@@ -20,5 +20,6 @@ type ProjectDomainService interface {
 	FindProjectByIdServices(id string) (projectModel.ProjectDomainInterface, *rest_err.RestErr)
 	FindProjectByNameServices(name string) (projectModel.ProjectDomainInterface, *rest_err.RestErr)
 	FindAllProjectsServices() ([]projectModel.ProjectDomainInterface, *rest_err.RestErr)
+	FindProjectByAsanaIdServices(asanaId string) (projectModel.ProjectDomainInterface, *rest_err.RestErr)
 	DeleteProject(string) *rest_err.RestErr
 }

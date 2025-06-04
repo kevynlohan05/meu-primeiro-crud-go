@@ -50,6 +50,7 @@ func ConvertTicketDomainToEntity(domain ticketModel.TicketDomainInterface) *tick
 		Priority:       domain.GetPriority(),
 		AttachmentURLs: string(attachmentURLsJSON),
 		Status:         domain.GetStatus(),
+		AsanaTaskID:    domain.GetAsanaTaskID(),
 		ProjectID:      domain.GetProjectID(),
 	}
 

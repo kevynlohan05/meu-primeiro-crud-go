@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"time"
 
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/rest_err"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model/converter"
@@ -13,15 +14,13 @@ import (
 )
 
 func (tr *ticketRepository) FindTicketById(id string) (ticketModel.TicketDomainInterface, *rest_err.RestErr) {
-	// Converte string para int
 	ticketId, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, rest_err.NewBadRequestError("ID do ticket inválido")
 	}
 
-	// Query para buscar ticket pelo ID
-	query := `SELECT id, title, request_user, sector, description, request_type, priority, attachment_urls, asana_task_id, status, project_id, comments
-		  FROM tickets WHERE id = ?`
+	query := `SELECT id, title, request_user, sector, description, request_type, priority, attachment_urls, asana_task_id, status, project_id
+			  FROM tickets WHERE id = ?`
 
 	row := tr.databaseConnection.QueryRow(query, ticketId)
 
@@ -38,9 +37,7 @@ func (tr *ticketRepository) FindTicketById(id string) (ticketModel.TicketDomainI
 		&entity.AsanaTaskID,
 		&entity.Status,
 		&entity.ProjectID,
-		&entity.Comments,
 	)
-
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, rest_err.NewNotFoundError("Ticket não encontrado")
@@ -48,12 +45,27 @@ func (tr *ticketRepository) FindTicketById(id string) (ticketModel.TicketDomainI
 		return nil, rest_err.NewInternalServerError(fmt.Sprintf("Erro ao buscar ticket: %s", err.Error()))
 	}
 
-	return converter.ConvertTicketEntityToDomain(entity), nil
+	asanaTaskId := entity.AsanaTaskID
+
+	log.Println("Asana Task ID:", asanaTaskId)
+
+	domain := converter.ConvertTicketEntityToDomain(entity)
+
+	comments, RestErr := tr.FindCommentsByTicketID(id)
+
+	if RestErr != nil {
+		log.Println("Erro ao buscar comentários:", RestErr)
+		return nil, rest_err.NewInternalServerError("Erro ao buscar comentários")
+	}
+	domain.SetAsanaTaskID(asanaTaskId)
+	domain.SetComments(comments)
+
+	return domain, nil
 }
 
 func (tr *ticketRepository) FindAllTicketsByEmail(email string) ([]ticketModel.TicketDomainInterface, *rest_err.RestErr) {
-	query := `SELECT id, title, request_user, sector, description, request_type, priority, attachment_urls, asana_task_id, status, project_id, comments 
-		  FROM tickets WHERE request_user = ?`
+	query := `SELECT id, title, request_user, sector, description, request_type, priority, attachment_urls, asana_task_id, status, project_id
+			  FROM tickets WHERE request_user = ?`
 
 	rows, err := tr.databaseConnection.Query(query, email)
 	if err != nil {
@@ -66,7 +78,7 @@ func (tr *ticketRepository) FindAllTicketsByEmail(email string) ([]ticketModel.T
 
 	for rows.Next() {
 		var entity ticketEntity.TicketEntity
-		err := rows.Scan(
+		if err := rows.Scan(
 			&entity.ID,
 			&entity.Title,
 			&entity.RequestUser,
@@ -78,24 +90,28 @@ func (tr *ticketRepository) FindAllTicketsByEmail(email string) ([]ticketModel.T
 			&entity.AsanaTaskID,
 			&entity.Status,
 			&entity.ProjectID,
-			&entity.Comments,
-		)
-		if err != nil {
+		); err != nil {
 			log.Println("Erro ao escanear ticket:", err)
-			return nil, rest_err.NewInternalServerError("Erro ao processar tickets")
+			continue
 		}
-		tickets = append(tickets, converter.ConvertTicketEntityToDomain(entity))
-	}
 
-	if len(tickets) == 0 {
-		return nil, rest_err.NewNotFoundError("Nenhum ticket encontrado para o e-mail informado")
+		domain := converter.ConvertTicketEntityToDomain(entity)
+
+		ticketIDStr := strconv.Itoa(int(entity.ID))
+		comments, errRest := tr.FindCommentsByTicketID(ticketIDStr)
+		if errRest == nil {
+			domain.SetAsanaTaskID(entity.AsanaTaskID)
+			domain.SetComments(comments)
+		}
+
+		tickets = append(tickets, domain)
 	}
 
 	return tickets, nil
 }
 
 func (tr *ticketRepository) FindAllTickets() ([]ticketModel.TicketDomainInterface, *rest_err.RestErr) {
-	query := `SELECT id, title, request_user, sector, description, request_type, priority, attachment_urls, asana_task_id, status, project_id, comments FROM tickets`
+	query := `SELECT id, title, request_user, sector, description, request_type, priority, attachment_urls, asana_task_id, status, project_id FROM tickets`
 
 	rows, err := tr.databaseConnection.Query(query)
 	if err != nil {
@@ -108,7 +124,7 @@ func (tr *ticketRepository) FindAllTickets() ([]ticketModel.TicketDomainInterfac
 
 	for rows.Next() {
 		var entity ticketEntity.TicketEntity
-		err := rows.Scan(
+		if err := rows.Scan(
 			&entity.ID,
 			&entity.Title,
 			&entity.RequestUser,
@@ -120,18 +136,88 @@ func (tr *ticketRepository) FindAllTickets() ([]ticketModel.TicketDomainInterfac
 			&entity.AsanaTaskID,
 			&entity.Status,
 			&entity.ProjectID,
-			&entity.Comments,
-		)
-		if err != nil {
+		); err != nil {
 			log.Println("Erro ao escanear ticket:", err)
-			return nil, rest_err.NewInternalServerError("Erro ao processar tickets")
+			continue
 		}
-		tickets = append(tickets, converter.ConvertTicketEntityToDomain(entity))
-	}
 
-	if len(tickets) == 0 {
-		return nil, rest_err.NewNotFoundError("Nenhum ticket encontrado")
+		domain := converter.ConvertTicketEntityToDomain(entity)
+
+		ticketIDStr := strconv.Itoa(int(entity.ID))
+		comments, errRest := tr.FindCommentsByTicketID(ticketIDStr)
+		if errRest == nil {
+			domain.SetAsanaTaskID(entity.AsanaTaskID)
+			domain.SetComments(comments)
+		}
+
+		tickets = append(tickets, domain)
 	}
 
 	return tickets, nil
+}
+
+func (tr *ticketRepository) FindCommentsByTicketID(ticketId string) ([]ticketModel.CommentDomain, *rest_err.RestErr) {
+	var ticketIDInt int
+	_, err := fmt.Sscanf(ticketId, "%d", &ticketIDInt)
+	if err != nil {
+		return nil, rest_err.NewBadRequestError("ID do ticket inválido")
+	}
+
+	rows, err := tr.databaseConnection.Query(`
+		SELECT id, ticket_id, author, content, created_at
+		FROM comments
+		WHERE ticket_id = ?
+		ORDER BY created_at ASC`, ticketIDInt)
+
+	if err != nil {
+		log.Println("Erro ao buscar comentários:", err)
+		return nil, rest_err.NewInternalServerError("Erro ao buscar comentários")
+	}
+	defer rows.Close()
+
+	var comments []ticketModel.CommentDomain
+	for rows.Next() {
+		var c ticketModel.CommentDomain
+		var createdAt time.Time
+
+		if err := rows.Scan(&c.ID, &c.TicketID, &c.Author, &c.Content, &createdAt); err != nil {
+			log.Println("Erro ao ler comentário:", err)
+			continue
+		}
+
+		c.CreatedAt = createdAt.Unix() // transforma para int64 (Unix timestamp)
+		comments = append(comments, c)
+	}
+
+	return comments, nil
+}
+
+func (tr *ticketRepository) FindCommentsByEmail(email string) ([]ticketModel.CommentDomain, *rest_err.RestErr) {
+	rows, err := tr.databaseConnection.Query(`
+		SELECT id, ticket_id, author, content, created_at
+		FROM comments
+		WHERE author = ?
+		ORDER BY created_at ASC`, email)
+
+	if err != nil {
+		log.Println("Erro ao buscar comentários por email:", err)
+		return nil, rest_err.NewInternalServerError("Erro ao buscar comentários")
+	}
+	defer rows.Close()
+
+	var comments []ticketModel.CommentDomain
+	for rows.Next() {
+		var c ticketModel.CommentDomain
+		var createdAt time.Time
+
+		if err := rows.Scan(&c.ID, &c.TicketID, &c.Author, &c.Content, &createdAt); err != nil {
+			log.Println("Erro ao ler comentário:", err)
+			continue
+		}
+
+		c.CreatedAt = createdAt.Unix() // transforma para int64 (Unix timestamp)
+		comments = append(comments, c)
+	}
+
+	return comments, nil
 }

@@ -44,6 +44,7 @@ func ConvertTicketEntityToDomain(entity ticketEntity.TicketEntity) ticketModel.T
 		entity.Description,
 		entity.RequestType,
 		entity.Priority,
+		entity.AsanaTaskID,
 		attachmentURLs,
 		entity.ProjectID,
 	)
@@ -51,14 +52,6 @@ func ConvertTicketEntityToDomain(entity ticketEntity.TicketEntity) ticketModel.T
 	domain.SetID(fmt.Sprintf("%d", entity.ID))
 	domain.SetAsanaTaskID(entity.AsanaTaskID)
 	domain.SetStatus(entity.Status)
-
-	var comments []ticketModel.CommentDomain
-	err = json.Unmarshal([]byte(entity.Comments), &comments)
-	if err != nil {
-		log.Printf("Error unmarshaling comments: %v\n", err)
-		comments = []ticketModel.CommentDomain{}
-	}
-	domain.SetComments(comments)
 
 	log.Println("Domain after setting ID:")
 	log.Printf("Domain: %+v\n", domain)

@@ -18,9 +18,11 @@ type ticketDomain struct {
 }
 
 type CommentDomain struct {
+	ID        int64
+	TicketID  int64
 	Author    string
-	Message   string
-	Timestamp int64
+	Content   string
+	CreatedAt int64
 }
 
 func (td *ticketDomain) SetProjectName(projectName string) {

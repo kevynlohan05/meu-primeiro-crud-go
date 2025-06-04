@@ -97,3 +97,32 @@ func (tr *ticketRepository) UpdateAsanaTaskID(ticketId string, taskID string) *r
 	log.Println("Task ID do Asana atualizado com sucesso no MySQL")
 	return nil
 }
+
+func (tr *ticketRepository) UpdateTicketStatus(ticketId string, status string) *rest_err.RestErr {
+	ticketIDInt, err := strconv.Atoi(ticketId)
+	if err != nil {
+		log.Println("Erro ao converter ID do ticket:", err)
+		return rest_err.NewBadRequestError("ID do ticket inválido")
+	}
+
+	query := `UPDATE tickets SET status = ? WHERE id = ?`
+
+	result, err := tr.databaseConnection.Exec(query, status, ticketIDInt)
+	if err != nil {
+		log.Println("Erro ao atualizar status do ticket:", err)
+		return rest_err.NewInternalServerError("Erro ao atualizar status do ticket")
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Println("Erro ao obter número de linhas afetadas:", err)
+		return rest_err.NewInternalServerError("Erro interno ao atualizar status do ticket")
+	}
+
+	if rowsAffected == 0 {
+		return rest_err.NewNotFoundError("Ticket não encontrado para atualizar status")
+	}
+
+	log.Println("Status do ticket atualizado com sucesso no MySQL")
+	return nil
+}

@@ -38,7 +38,6 @@ func (ur *userRepository) CreateUser(userDomain userModel.UserDomainInterface) (
 	}
 	value.ID = int(insertedID)
 
-	// 2. Processar os projetos (buscar ou criar)
 	for _, projectName := range userDomain.GetProjects() {
 		var projectID int
 

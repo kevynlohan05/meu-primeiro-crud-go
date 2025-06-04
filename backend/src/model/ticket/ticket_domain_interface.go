@@ -50,7 +50,7 @@ func NewTicketUpdateDomain(title, description, requestType, priority, status str
 	}
 }
 
-func NewTicketDomainFromEntity(title, requestUser, sector, description, requestType, priority string, attachmentURL []string, projectId int64) TicketDomainInterface {
+func NewTicketDomainFromEntity(title, requestUser, sector, description, requestType, priority, asanaTaskID string, attachmentURL []string, projectId int64) TicketDomainInterface {
 	return &ticketDomain{
 		title:          title,
 		requestUser:    requestUser,
@@ -58,6 +58,7 @@ func NewTicketDomainFromEntity(title, requestUser, sector, description, requestT
 		description:    description,
 		requestType:    requestType,
 		priority:       priority,
+		asanaTaskID:    asanaTaskID,
 		attachmentURLs: attachmentURL,
 		projectId:      projectId,
 	}

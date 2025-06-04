@@ -7,21 +7,20 @@ import (
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/rest_err"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/controller/model/response"
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/view"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (tc *ticketControllerInterface) FindTicketById(c *gin.Context) {
 	ticketId := c.Param("ticketId")
 
-	if _, err := primitive.ObjectIDFromHex(ticketId); err != nil {
-		errorMessage := rest_err.NewBadRequestError("Invalid ticket ID format")
-		c.JSON(errorMessage.Code, errorMessage)
-		return
-	}
-
 	ticketDomain, err := tc.service.FindTicketByIdServices(ticketId)
 	if err != nil {
 		c.JSON(err.Code, err)
+		return
+	}
+
+	if ticketDomain == nil {
+		errorMessage := rest_err.NewNotFoundError("Ticket not found")
+		c.JSON(errorMessage.Code, errorMessage)
 		return
 	}
 
@@ -44,7 +43,12 @@ func (tc *ticketControllerInterface) FindAllTicketsByEmail(c *gin.Context) {
 		return
 	}
 
-	// Converter slice de domains para slice de responses
+	if len(tickets) == 0 {
+		errorMessage := rest_err.NewNotFoundError("No tickets found for the provided email")
+		c.JSON(errorMessage.Code, errorMessage)
+		return
+	}
+
 	var ticketResponses []response.TicketResponse
 	for _, ticket := range tickets {
 		ticketResponses = append(ticketResponses, view.ConvertTicketDomainToResponse(ticket))
@@ -57,6 +61,12 @@ func (tc *ticketControllerInterface) FindAllTickets(c *gin.Context) {
 	tickets, err := tc.service.FindAllTickets()
 	if err != nil {
 		c.JSON(err.Code, err)
+		return
+	}
+
+	if len(tickets) == 0 {
+		errorMessage := rest_err.NewNotFoundError("No tickets found")
+		c.JSON(errorMessage.Code, errorMessage)
 		return
 	}
 
@@ -87,6 +97,12 @@ func (tc *ticketControllerInterface) FindAllTicketsByEmailAndStatus(c *gin.Conte
 	tickets, err := tc.service.FindAllTicketsByEmailAndStatus(ticketEmail, ticketStatus)
 	if err != nil {
 		c.JSON(err.Code, err)
+		return
+	}
+
+	if len(tickets) == 0 {
+		errorMessage := rest_err.NewNotFoundError("No tickets found for the provided email and status")
+		c.JSON(errorMessage.Code, errorMessage)
 		return
 	}
 

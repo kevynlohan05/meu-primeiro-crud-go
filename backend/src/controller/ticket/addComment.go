@@ -30,11 +30,16 @@ func (tc *ticketControllerInterface) AddComment(c *gin.Context) {
 	}
 
 	userEmail := c.GetString("userEmail")
+	if userEmail == "" {
+		errRest := rest_err.NewUnauthorizedError("Usuário não autenticado")
+		c.JSON(errRest.Code, errRest)
+		return
+	}
 
 	comment := ticketModel.CommentDomain{
 		Author:    userEmail,
-		Message:   req.Message,
-		Timestamp: time.Now().Unix(),
+		Content:   req.Content,
+		CreatedAt: time.Now().Unix(),
 	}
 
 	err := tc.service.AddComment(ticketId, comment)

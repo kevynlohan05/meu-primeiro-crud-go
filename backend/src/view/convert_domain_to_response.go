@@ -30,9 +30,11 @@ func ConvertTicketDomainToResponse(ticketDomain ticketModel.TicketDomainInterfac
 
 	for i, comment := range commentsDomain {
 		commentsResponse[i] = response.CommentResponse{
+			ID:        comment.ID,
+			TicketID:  comment.TicketID,
 			Author:    comment.Author,
-			Message:   comment.Message,
-			Timestamp: comment.Timestamp,
+			Content:   comment.Content,
+			CreatedAt: comment.CreatedAt,
 		}
 	}
 

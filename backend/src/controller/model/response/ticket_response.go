@@ -16,7 +16,9 @@ type TicketResponse struct {
 }
 
 type CommentResponse struct {
+	ID        int64  `json:"id"`
+	TicketID  int64  `json:"ticket_id"`
 	Author    string `json:"author"`
-	Message   string `json:"message"`
-	Timestamp int64  `json:"timestamp"`
+	Content   string `json:"content"`
+	CreatedAt int64  `json:"created_at"`
 }
