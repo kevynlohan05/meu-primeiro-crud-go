@@ -15,7 +15,6 @@ func (ud *userDomainService) DeleteUser(userId string) *rest_err.RestErr {
 		return err
 	}
 
-	log.Println("User delete successfully")
-
+	log.Println("User deleted successfully")
 	return nil
 }

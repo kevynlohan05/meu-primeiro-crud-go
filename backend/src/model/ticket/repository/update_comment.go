@@ -13,12 +13,12 @@ func (tr *ticketRepository) UpdateComment(ticketId string, commentId string, con
 
 	_, err := fmt.Sscanf(ticketId, "%d", &ticketIDInt)
 	if err != nil {
-		return rest_err.NewBadRequestError("ID do ticket inválido")
+		return rest_err.NewBadRequestError("Invalid ticket ID")
 	}
 
 	_, err = fmt.Sscanf(commentId, "%d", &commentIDInt)
 	if err != nil {
-		return rest_err.NewBadRequestError("ID do comentário inválido")
+		return rest_err.NewBadRequestError("Invalid comment ID")
 	}
 
 	_, err = tr.databaseConnection.Exec(`
@@ -28,8 +28,8 @@ func (tr *ticketRepository) UpdateComment(ticketId string, commentId string, con
 		content, ticketIDInt, commentIDInt)
 
 	if err != nil {
-		log.Println("Erro ao atualizar comentário:", err)
-		return rest_err.NewInternalServerError("Erro ao atualizar comentário")
+		log.Println("Error updating comment:", err)
+		return rest_err.NewInternalServerError("Error updating comment")
 	}
 
 	return nil

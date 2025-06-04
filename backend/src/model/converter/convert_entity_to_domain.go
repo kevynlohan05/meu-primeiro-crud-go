@@ -34,7 +34,7 @@ func ConvertTicketEntityToDomain(entity ticketEntity.TicketEntity) ticketModel.T
 	err := json.Unmarshal([]byte(entity.AttachmentURLs), &attachmentURLs)
 	if err != nil {
 		log.Printf("Error unmarshaling attachment URLs: %v\n", err)
-		attachmentURLs = []string{} // fallback vazio
+		attachmentURLs = []string{} // fallback to empty
 	}
 
 	domain := ticketModel.NewTicketDomainFromEntity(

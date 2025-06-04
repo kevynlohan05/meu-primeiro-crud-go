@@ -5,6 +5,7 @@ import (
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model/user/service"
 )
 
+// NewUserControllerInterface creates a new instance of the user controller interface
 func NewUserControllerInterface(serviceInterface service.UserDomainService) UserControllerInterface {
 	return &userControllerInterface{
 		service: serviceInterface,

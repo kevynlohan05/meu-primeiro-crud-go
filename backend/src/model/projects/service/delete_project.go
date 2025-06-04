@@ -11,9 +11,10 @@ func (pd *projectDomainService) DeleteProject(projectId string) *rest_err.RestEr
 
 	err := pd.projectRepository.DeleteProject(projectId)
 	if err != nil {
-		log.Println("Error in repository:", err)
+		log.Printf("Error deleting project in repository: %v\n", err)
 		return err
 	}
+
 	log.Println("Project deleted successfully")
 	return nil
 }

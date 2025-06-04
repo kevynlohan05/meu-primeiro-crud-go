@@ -12,12 +12,13 @@ import (
 )
 
 var (
+	// Directly get the secret key string, not from environment variable named as the key string
 	JWT_SECRET_KEY = os.Getenv("JWT_SECRET_KEY")
 )
 
 func (ud *userDomain) GenerateToken() (string, *rest_err.RestErr) {
-
-	secret := os.Getenv(JWT_SECRET_KEY)
+	// Use the secret key directly, no need to call os.Getenv again
+	secret := JWT_SECRET_KEY
 
 	claims := jwt.MapClaims{
 		"id":         ud.iD,
@@ -42,7 +43,7 @@ func (ud *userDomain) GenerateToken() (string, *rest_err.RestErr) {
 }
 
 func VerifyToken(tokenValue string) (UserDomainInterface, *rest_err.RestErr) {
-	secret := os.Getenv(JWT_SECRET_KEY)
+	secret := JWT_SECRET_KEY
 
 	token, err := jwt.Parse(RemoveBearerPrefix(tokenValue), func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); ok {
@@ -72,13 +73,12 @@ func VerifyToken(tokenValue string) (UserDomainInterface, *rest_err.RestErr) {
 func RemoveBearerPrefix(token string) string {
 	if strings.HasPrefix(token, "Bearer ") {
 		token = strings.TrimPrefix(token, "Bearer ")
-
 	}
 	return token
 }
 
 func VerifyTokenMiddleware(c *gin.Context) {
-	secret := os.Getenv(JWT_SECRET_KEY)
+	secret := JWT_SECRET_KEY
 	tokenValue := RemoveBearerPrefix(c.Request.Header.Get("Authorization"))
 
 	token, err := jwt.Parse(tokenValue, func(token *jwt.Token) (interface{}, error) {
@@ -110,8 +110,7 @@ func VerifyTokenMiddleware(c *gin.Context) {
 	userDepartment := claims["department"].(string)
 	userRole := claims["role"].(string)
 
-	// Salvando no contexto para uso posterior
-
+	// Save to context for later use
 	c.Set("userID", userID)
 	c.Set("userName", userName)
 	c.Set("userEmail", userEmail)
@@ -124,7 +123,7 @@ func VerifyTokenMiddleware(c *gin.Context) {
 func AdminOnlyMiddleware(c *gin.Context) {
 	role, exists := c.Get("role")
 	if !exists || role != "admin" {
-		errRest := rest_err.NewUnauthorizedError("Acesso permitido apenas para administradores")
+		errRest := rest_err.NewUnauthorizedError("access allowed for administrators only")
 		c.JSON(errRest.Code, errRest)
 		c.Abort()
 		return

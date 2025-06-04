@@ -13,8 +13,8 @@ func (ur *userRepository) CreateUser(userDomain userModel.UserDomainInterface) (
 	value := converter.ConvertUserDomainToEntity(userDomain)
 
 	query := `
-	INSERT INTO users (name, email, password, phone, enterprise, department, role)
-	VALUES (?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO users (name, email, password, phone, enterprise, department, role)
+		VALUES (?, ?, ?, ?, ?, ?, ?)
 	`
 
 	result, err := ur.db.Exec(query,
@@ -26,42 +26,46 @@ func (ur *userRepository) CreateUser(userDomain userModel.UserDomainInterface) (
 		value.Department,
 		value.Role,
 	)
-
 	if err != nil {
 		log.Println("Error inserting user:", err)
-		return nil, rest_err.NewInternalServerError("Erro ao inserir usuário")
+		return nil, rest_err.NewInternalServerError("Error while inserting user")
 	}
 
 	insertedID, err := result.LastInsertId()
 	if err != nil {
-		return nil, rest_err.NewInternalServerError("Erro ao obter ID do usuário")
+		log.Println("Error retrieving last inserted user ID:", err)
+		return nil, rest_err.NewInternalServerError("Error while retrieving user ID")
 	}
 	value.ID = int(insertedID)
 
 	for _, projectName := range userDomain.GetProjects() {
 		var projectID int
 
-		// Verifica se projeto existe
+		// Check if project already exists
 		err := ur.db.QueryRow("SELECT id FROM projects WHERE name = ?", projectName).Scan(&projectID)
 		if err != nil {
-			// Cria se não existe
+			// Create project if not exists
 			res, err := ur.db.Exec("INSERT INTO projects (name) VALUES (?)", projectName)
 			if err != nil {
-				log.Println("Erro ao inserir projeto:", err)
+				log.Println("Error inserting project:", err)
 				continue
 			}
-			lastID, _ := res.LastInsertId()
+			lastID, err := res.LastInsertId()
+			if err != nil {
+				log.Println("Error retrieving project ID:", err)
+				continue
+			}
 			projectID = int(lastID)
 		}
 
-		// Relaciona com usuário
+		// Associate user with project
 		_, err = ur.db.Exec("INSERT INTO user_projects (user_id, project_id) VALUES (?, ?)", insertedID, projectID)
 		if err != nil {
-			log.Println("Erro ao inserir user_project:", err)
+			log.Println("Error inserting into user_projects:", err)
 			continue
 		}
 	}
 
-	log.Println("Usuário e projetos inseridos com sucesso")
+	log.Println("User and associated projects created successfully")
 	return converter.ConvertUserEntityToDomain(*value, userDomain.GetProjects()), nil
 }

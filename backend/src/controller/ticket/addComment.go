@@ -17,21 +17,21 @@ func (tc *ticketControllerInterface) AddComment(c *gin.Context) {
 	var req request.AddCommentRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		errRest := rest_err.NewBadRequestError("Dados inválidos para comentário")
+		errRest := rest_err.NewBadRequestError("Invalid data for comment")
 		c.JSON(errRest.Code, errRest)
 		return
 	}
 
 	ticketId := c.Param("ticketId")
 	if ticketId == "" {
-		errRest := rest_err.NewBadRequestError("ID do ticket é obrigatório")
+		errRest := rest_err.NewBadRequestError("Ticket ID is required")
 		c.JSON(errRest.Code, errRest)
 		return
 	}
 
 	userEmail := c.GetString("userEmail")
 	if userEmail == "" {
-		errRest := rest_err.NewUnauthorizedError("Usuário não autenticado")
+		errRest := rest_err.NewUnauthorizedError("User not authenticated")
 		c.JSON(errRest.Code, errRest)
 		return
 	}

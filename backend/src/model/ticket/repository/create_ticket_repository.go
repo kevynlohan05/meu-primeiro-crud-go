@@ -15,7 +15,7 @@ func (tr *ticketRepository) CreateTicket(ticketDomain ticketModel.TicketDomainIn
 	value := converter.ConvertTicketDomainToEntity(ticketDomain)
 
 	if value == nil {
-		log.Println("Error: Conversion to entity failed")
+		log.Println("Error: conversion to entity failed")
 		return nil, rest_err.NewInternalServerError("Failed to convert domain to entity")
 	}
 
@@ -46,7 +46,7 @@ func (tr *ticketRepository) CreateTicket(ticketDomain ticketModel.TicketDomainIn
 
 	insertedID, err := result.LastInsertId()
 	if err != nil {
-		log.Println("Error getting inserted ticket ID:", err)
+		log.Println("Error retrieving inserted ticket ID:", err)
 		return nil, rest_err.NewInternalServerError("Error retrieving ticket ID")
 	}
 

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"net/http"
 	"net/mail"
 
@@ -10,8 +11,9 @@ import (
 )
 
 func (uc *userControllerInterface) FindUserById(c *gin.Context) {
-	userId := c.Param("userId")
+	log.Println("Init FindUserById controller")
 
+	userId := c.Param("userId")
 
 	userDomain, err := uc.service.FindUserByIdServices(userId)
 	if err != nil {
@@ -23,6 +25,8 @@ func (uc *userControllerInterface) FindUserById(c *gin.Context) {
 }
 
 func (uc *userControllerInterface) FindUserByEmail(c *gin.Context) {
+	log.Println("Init FindUserByEmail controller")
+
 	userEmail := c.Param("userEmail")
 
 	if _, err := mail.ParseAddress(userEmail); err != nil {
@@ -38,5 +42,4 @@ func (uc *userControllerInterface) FindUserByEmail(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, view.ConvertUserDomainToResponse(userDomain))
-
 }

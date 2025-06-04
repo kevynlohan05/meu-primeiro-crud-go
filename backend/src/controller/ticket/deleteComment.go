@@ -9,26 +9,25 @@ import (
 )
 
 func (tc *ticketControllerInterface) DeleteComment(c *gin.Context) {
-	log.Println("Init DeleteComment controller")
+	log.Println("Start DeleteComment controller")
 
 	ticketId := c.Param("ticketId")
 	commentId := c.Param("commentId")
 
 	if ticketId == "" || commentId == "" {
-		errorMessage := rest_err.NewBadRequestError("Ticket ID and Comment ID are required")
-		c.JSON(errorMessage.Code, errorMessage)
+		errRest := rest_err.NewBadRequestError("Ticket ID and Comment ID are required")
+		c.JSON(errRest.Code, errRest)
 		return
 	}
 
 	userEmail := c.GetString("userEmail")
 	if userEmail == "" {
-		errorMessage := rest_err.NewUnauthorizedError("User not authenticated")
-		c.JSON(errorMessage.Code, errorMessage)
+		errRest := rest_err.NewUnauthorizedError("User not authenticated")
+		c.JSON(errRest.Code, errRest)
 		return
 	}
 
-	err := tc.service.DeleteComment(ticketId, commentId, userEmail)
-	if err != nil {
+	if err := tc.service.DeleteComment(ticketId, commentId, userEmail); err != nil {
 		c.JSON(err.Code, err)
 		return
 	}

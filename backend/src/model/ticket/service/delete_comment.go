@@ -10,8 +10,7 @@ import (
 func (td *ticketDomainService) DeleteComment(ticketId, commentId, email string) *rest_err.RestErr {
 	log.Println("Calling repository to delete comment")
 
-	// Check if the user is authorized to delete the comment
-
+	// Validate the ticket ID format
 	var ticketIDInt int64
 	_, err := fmt.Sscanf(ticketId, "%d", &ticketIDInt)
 	if err != nil {
@@ -19,6 +18,7 @@ func (td *ticketDomainService) DeleteComment(ticketId, commentId, email string) 
 		return rest_err.NewBadRequestError("Invalid ticket ID format")
 	}
 
+	// Validate the comment ID format
 	var commentIDInt int64
 	_, err = fmt.Sscanf(commentId, "%d", &commentIDInt)
 	if err != nil {
@@ -28,7 +28,7 @@ func (td *ticketDomainService) DeleteComment(ticketId, commentId, email string) 
 
 	commentsUser, RestErr := td.ticketRepository.FindCommentsByEmail(email)
 	if RestErr != nil {
-		log.Println("Error finding comments by user:", err)
+		log.Println("Error retrieving comments by user:", RestErr)
 		return rest_err.NewInternalServerError("Error retrieving comments")
 	}
 
@@ -46,7 +46,7 @@ func (td *ticketDomainService) DeleteComment(ticketId, commentId, email string) 
 
 	RestErr = td.ticketRepository.DeleteComment(ticketId, commentId)
 	if RestErr != nil {
-		log.Println("Error in repository:", err)
+		log.Println("Repository error during comment deletion:", RestErr)
 		return RestErr
 	}
 

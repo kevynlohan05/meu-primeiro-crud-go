@@ -14,9 +14,9 @@ import (
 var validate = validator.New()
 
 func (tc *ticketControllerInterface) CreateTicket(c *gin.Context) {
-	log.Println("Init createTicket controller")
+	log.Println("Start CreateTicket controller")
 
-	// Preenche manualmente
+	// Parse form fields
 	ticketRequest := request.TicketRequest{
 		Title:       c.PostForm("title"),
 		Description: c.PostForm("description"),
@@ -25,20 +25,25 @@ func (tc *ticketControllerInterface) CreateTicket(c *gin.Context) {
 		Project:     c.PostForm("project"),
 	}
 
-	// Valida com o validator
+	// Validate request fields
 	if err := validate.Struct(ticketRequest); err != nil {
-		log.Println("Erro de validação:", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos", "details": err.Error()})
+		log.Println("Validation error:", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid input data",
+			"details": err.Error(),
+		})
 		return
 	}
 
+	// Retrieve user info from context (from middleware)
 	userEmail := c.GetString("userEmail")
 	userDepartment := c.GetString("userDepartment")
 
+	// Parse and save uploaded files
 	form, err := c.MultipartForm()
 	if err != nil {
-		log.Println("Erro ao ler MultipartForm:", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Falha ao processar arquivos"})
+		log.Println("Failed to read multipart form:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to process uploaded files"})
 		return
 	}
 
@@ -48,13 +53,14 @@ func (tc *ticketControllerInterface) CreateTicket(c *gin.Context) {
 	for _, file := range files {
 		path := "uploads/" + file.Filename
 		if err := c.SaveUploadedFile(file, path); err != nil {
-			log.Println("Erro ao salvar arquivo:", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Falha ao salvar arquivo"})
+			log.Println("Failed to save file:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
 			return
 		}
 		uploadedURLs = append(uploadedURLs, path)
 	}
 
+	// Build domain object
 	domain := ticketModel.NewTicketDomain(
 		ticketRequest.Title,
 		userEmail,
@@ -66,12 +72,14 @@ func (tc *ticketControllerInterface) CreateTicket(c *gin.Context) {
 		uploadedURLs,
 	)
 
-	domainResult, RestErr := tc.service.CreateTicket(domain)
-	if RestErr != nil {
-		log.Println("Erro ao criar ticket:", RestErr)
-		c.JSON(RestErr.Code, RestErr)
+	// Call service to create the ticket
+	domainResult, restErr := tc.service.CreateTicket(domain)
+	if restErr != nil {
+		log.Println("Failed to create ticket:", restErr)
+		c.JSON(restErr.Code, restErr)
 		return
 	}
 
+	// Success response
 	c.JSON(http.StatusOK, view.ConvertTicketDomainToResponse(domainResult))
 }

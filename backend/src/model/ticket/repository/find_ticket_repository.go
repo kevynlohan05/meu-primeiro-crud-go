@@ -16,7 +16,7 @@ import (
 func (tr *ticketRepository) FindTicketById(id string) (ticketModel.TicketDomainInterface, *rest_err.RestErr) {
 	ticketId, err := strconv.Atoi(id)
 	if err != nil {
-		return nil, rest_err.NewBadRequestError("ID do ticket inválido")
+		return nil, rest_err.NewBadRequestError("Invalid ticket ID")
 	}
 
 	query := `SELECT id, title, request_user, sector, description, request_type, priority, attachment_urls, asana_task_id, status, project_id
@@ -40,9 +40,9 @@ func (tr *ticketRepository) FindTicketById(id string) (ticketModel.TicketDomainI
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, rest_err.NewNotFoundError("Ticket não encontrado")
+			return nil, rest_err.NewNotFoundError("Ticket not found")
 		}
-		return nil, rest_err.NewInternalServerError(fmt.Sprintf("Erro ao buscar ticket: %s", err.Error()))
+		return nil, rest_err.NewInternalServerError(fmt.Sprintf("Error fetching ticket: %s", err.Error()))
 	}
 
 	asanaTaskId := entity.AsanaTaskID
@@ -54,8 +54,8 @@ func (tr *ticketRepository) FindTicketById(id string) (ticketModel.TicketDomainI
 	comments, RestErr := tr.FindCommentsByTicketID(id)
 
 	if RestErr != nil {
-		log.Println("Erro ao buscar comentários:", RestErr)
-		return nil, rest_err.NewInternalServerError("Erro ao buscar comentários")
+		log.Println("Error fetching comments:", RestErr)
+		return nil, rest_err.NewInternalServerError("Error fetching comments")
 	}
 	domain.SetAsanaTaskID(asanaTaskId)
 	domain.SetComments(comments)
@@ -69,8 +69,8 @@ func (tr *ticketRepository) FindAllTicketsByEmail(email string) ([]ticketModel.T
 
 	rows, err := tr.databaseConnection.Query(query, email)
 	if err != nil {
-		log.Println("Erro ao buscar tickets por email:", err)
-		return nil, rest_err.NewInternalServerError("Erro ao buscar tickets")
+		log.Println("Error fetching tickets by email:", err)
+		return nil, rest_err.NewInternalServerError("Error fetching tickets")
 	}
 	defer rows.Close()
 
@@ -91,7 +91,7 @@ func (tr *ticketRepository) FindAllTicketsByEmail(email string) ([]ticketModel.T
 			&entity.Status,
 			&entity.ProjectID,
 		); err != nil {
-			log.Println("Erro ao escanear ticket:", err)
+			log.Println("Error scanning ticket:", err)
 			continue
 		}
 
@@ -115,8 +115,8 @@ func (tr *ticketRepository) FindAllTickets() ([]ticketModel.TicketDomainInterfac
 
 	rows, err := tr.databaseConnection.Query(query)
 	if err != nil {
-		log.Println("Erro ao buscar todos os tickets:", err)
-		return nil, rest_err.NewInternalServerError("Erro ao buscar tickets")
+		log.Println("Error fetching all tickets:", err)
+		return nil, rest_err.NewInternalServerError("Error fetching tickets")
 	}
 	defer rows.Close()
 
@@ -137,7 +137,7 @@ func (tr *ticketRepository) FindAllTickets() ([]ticketModel.TicketDomainInterfac
 			&entity.Status,
 			&entity.ProjectID,
 		); err != nil {
-			log.Println("Erro ao escanear ticket:", err)
+			log.Println("Error scanning ticket:", err)
 			continue
 		}
 
@@ -160,7 +160,7 @@ func (tr *ticketRepository) FindCommentsByTicketID(ticketId string) ([]ticketMod
 	var ticketIDInt int
 	_, err := fmt.Sscanf(ticketId, "%d", &ticketIDInt)
 	if err != nil {
-		return nil, rest_err.NewBadRequestError("ID do ticket inválido")
+		return nil, rest_err.NewBadRequestError("Invalid ticket ID")
 	}
 
 	rows, err := tr.databaseConnection.Query(`
@@ -170,8 +170,8 @@ func (tr *ticketRepository) FindCommentsByTicketID(ticketId string) ([]ticketMod
 		ORDER BY created_at ASC`, ticketIDInt)
 
 	if err != nil {
-		log.Println("Erro ao buscar comentários:", err)
-		return nil, rest_err.NewInternalServerError("Erro ao buscar comentários")
+		log.Println("Error fetching comments:", err)
+		return nil, rest_err.NewInternalServerError("Error fetching comments")
 	}
 	defer rows.Close()
 
@@ -181,11 +181,11 @@ func (tr *ticketRepository) FindCommentsByTicketID(ticketId string) ([]ticketMod
 		var createdAt time.Time
 
 		if err := rows.Scan(&c.ID, &c.TicketID, &c.Author, &c.Content, &createdAt); err != nil {
-			log.Println("Erro ao ler comentário:", err)
+			log.Println("Error reading comment:", err)
 			continue
 		}
 
-		c.CreatedAt = createdAt.Unix() // transforma para int64 (Unix timestamp)
+		c.CreatedAt = createdAt.Unix() // convert to int64 (Unix timestamp)
 		comments = append(comments, c)
 	}
 
@@ -200,8 +200,8 @@ func (tr *ticketRepository) FindCommentsByEmail(email string) ([]ticketModel.Com
 		ORDER BY created_at ASC`, email)
 
 	if err != nil {
-		log.Println("Erro ao buscar comentários por email:", err)
-		return nil, rest_err.NewInternalServerError("Erro ao buscar comentários")
+		log.Println("Error fetching comments by email:", err)
+		return nil, rest_err.NewInternalServerError("Error fetching comments")
 	}
 	defer rows.Close()
 
@@ -211,11 +211,11 @@ func (tr *ticketRepository) FindCommentsByEmail(email string) ([]ticketModel.Com
 		var createdAt time.Time
 
 		if err := rows.Scan(&c.ID, &c.TicketID, &c.Author, &c.Content, &createdAt); err != nil {
-			log.Println("Erro ao ler comentário:", err)
+			log.Println("Error reading comment:", err)
 			continue
 		}
 
-		c.CreatedAt = createdAt.Unix() // transforma para int64 (Unix timestamp)
+		c.CreatedAt = createdAt.Unix()
 		comments = append(comments, c)
 	}
 

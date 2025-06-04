@@ -12,12 +12,12 @@ func (tr *ticketRepository) DeleteComment(ticketId string, commentId string) *re
 
 	ticketID, err := strconv.Atoi(ticketId)
 	if err != nil {
-		return rest_err.NewBadRequestError("ID do ticket inválido")
+		return rest_err.NewBadRequestError("Invalid ticket ID")
 	}
 
 	commentID, err := strconv.Atoi(commentId)
 	if err != nil {
-		return rest_err.NewBadRequestError("ID do comentário inválido")
+		return rest_err.NewBadRequestError("Invalid comment ID")
 	}
 
 	log.Println("Deleting comment from MySQL")
@@ -25,17 +25,17 @@ func (tr *ticketRepository) DeleteComment(ticketId string, commentId string) *re
 	result, err := tr.databaseConnection.Exec("DELETE FROM comments WHERE ticket_id = ? AND id = ?", ticketID, commentID)
 	if err != nil {
 		log.Println("Error deleting comment from MySQL:", err)
-		return rest_err.NewInternalServerError(fmt.Sprintf("Erro ao deletar comentário: %s", err.Error()))
+		return rest_err.NewInternalServerError(fmt.Sprintf("Error deleting comment: %s", err.Error()))
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		log.Println("Error fetching rows affected:", err)
-		return rest_err.NewInternalServerError("Erro ao processar remoção do comentário")
+		return rest_err.NewInternalServerError("Error processing comment deletion")
 	}
 
 	if rowsAffected == 0 {
-		return rest_err.NewNotFoundError("Comentário não encontrado")
+		return rest_err.NewNotFoundError("Comment not found")
 	}
 
 	log.Println("Comment deleted successfully from MySQL")

@@ -8,16 +8,23 @@ import (
 	userModel "github.com/kevynlohan05/meu-primeiro-crud-go/src/model/user"
 )
 
-func InitRoutes(r *gin.RouterGroup, userController controllerUser.UserControllerInterface, ticketController controllerTicket.TicketControllerInterface, projectController controllerProject.ProjectControllerInterface) {
+// InitRoutes registers all application routes with proper middleware and handlers
+func InitRoutes(
+	r *gin.RouterGroup,
+	userController controllerUser.UserControllerInterface,
+	ticketController controllerTicket.TicketControllerInterface,
+	projectController controllerProject.ProjectControllerInterface,
+) {
+	// --- User routes ---
+	r.POST("/user/login", userController.LoginUser)
 
+	r.POST("/user/createUser", userController.CreateUser)
 	r.GET("/user/getUserById/:userId", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, userController.FindUserById)
 	r.GET("/user/getUserByEmail/:userEmail", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, userController.FindUserByEmail)
-	r.POST("/user/createUser", userController.CreateUser)
 	r.PUT("/user/updateUser/:userId", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, userController.UpdateUser)
 	r.DELETE("/user/deleteUser/:userId", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, userController.DeleteUser)
 
-	r.POST("/user/login", userController.LoginUser)
-
+	// --- Ticket routes ---
 	r.POST("/ticket/createTicket", userModel.VerifyTokenMiddleware, ticketController.CreateTicket)
 	r.GET("/ticket/getTicketById/:ticketId", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, ticketController.FindTicketById)
 	r.GET("/ticket/getAllTicketsByEmail/:ticketEmail", userModel.VerifyTokenMiddleware, ticketController.FindAllTicketsByEmail)
@@ -29,11 +36,11 @@ func InitRoutes(r *gin.RouterGroup, userController controllerUser.UserController
 	r.DELETE("/ticket/deleteComment/:ticketId/:commentId", userModel.VerifyTokenMiddleware, ticketController.DeleteComment)
 	r.DELETE("/ticket/deleteTicket/:ticketId", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, ticketController.DeleteTicket)
 
+	// --- Project routes ---
 	r.POST("/project/createProject", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, projectController.CreateProject)
 	r.GET("/project/getProjectById/:projectId", userModel.VerifyTokenMiddleware, projectController.FindProjectById)
 	r.GET("/project/getProjectByName/:projectName", userModel.VerifyTokenMiddleware, projectController.FindProjectByName)
 	r.GET("/project/getAllProjects", userModel.VerifyTokenMiddleware, projectController.FindAllProjects)
 	r.PUT("/project/updateProject/:projectId", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, projectController.UpdateProject)
 	r.DELETE("/project/deleteProject/:projectId", userModel.VerifyTokenMiddleware, userModel.AdminOnlyMiddleware, projectController.DeleteProject)
-
 }

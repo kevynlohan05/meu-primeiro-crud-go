@@ -19,7 +19,7 @@ func (td *ticketDomainService) FindTicketByIdServices(id string) (ticketModel.Ti
 
 	project, err := td.projectService.FindProjectByIdServices(projectIDStr)
 	if err != nil {
-		return nil, rest_err.NewInternalServerError("Erro ao buscar o projeto associado ao ticket")
+		return nil, rest_err.NewInternalServerError("Error fetching project associated with ticket")
 	}
 
 	ticket.SetProjectName(project.GetName())
@@ -42,7 +42,6 @@ func (td *ticketDomainService) FindAllTicketsByEmail(email string) ([]ticketMode
 	}
 
 	for _, t := range tickets {
-
 		projectIDStr := strconv.FormatInt(t.GetProjectID(), 10)
 		project, _ := td.projectService.FindProjectByIdServices(projectIDStr)
 		t.SetProjectName(project.GetName())
@@ -67,7 +66,6 @@ func (td *ticketDomainService) FindAllTickets() ([]ticketModel.TicketDomainInter
 	}
 
 	for _, t := range tickets {
-
 		projectIDStr := strconv.FormatInt(t.GetProjectID(), 10)
 		project, _ := td.projectService.FindProjectByIdServices(projectIDStr)
 		t.SetProjectName(project.GetName())
@@ -80,10 +78,9 @@ func (td *ticketDomainService) FindAllTickets() ([]ticketModel.TicketDomainInter
 
 			if err == nil {
 				t.SetStatus(status)
-				log.Println("Atualizando status do ticket:", t.GetID(), "para", status)
+				log.Println("Updating ticket status:", t.GetID(), "to", status)
 				_ = td.ticketRepository.UpdateTicketStatus(t.GetID(), status)
 			}
-
 		}
 	}
 
@@ -99,7 +96,6 @@ func (td *ticketDomainService) FindAllTicketsByEmailAndStatus(email string, stat
 	var filteredTickets []ticketModel.TicketDomainInterface
 
 	for _, t := range tickets {
-
 		projectIDStr := strconv.FormatInt(t.GetProjectID(), 10)
 		project, _ := td.projectService.FindProjectByIdServices(projectIDStr)
 		t.SetProjectName(project.GetName())
@@ -119,7 +115,7 @@ func (td *ticketDomainService) FindAllTicketsByEmailAndStatus(email string, stat
 	}
 
 	if len(filteredTickets) == 0 {
-		return nil, rest_err.NewNotFoundError("Nenhum ticket encontrado com os filtros fornecidos")
+		return nil, rest_err.NewNotFoundError("No tickets found with the provided filters")
 	}
 
 	return filteredTickets, nil

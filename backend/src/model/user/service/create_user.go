@@ -8,11 +8,11 @@ import (
 )
 
 func (ud *userDomainService) CreateUserServices(userDomain userModel.UserDomainInterface) (userModel.UserDomainInterface, *rest_err.RestErr) {
-
+	// Check if user already exists by email
 	user, _ := ud.FindUserByEmailServices(userDomain.GetEmail())
 	if user != nil {
 		log.Println("User already exists")
-		return nil, rest_err.NewBadRequestError("Email already registered")
+		return nil, rest_err.NewBadRequestError("email already registered")
 	}
 
 	log.Println("Encrypting password")
@@ -21,16 +21,15 @@ func (ud *userDomainService) CreateUserServices(userDomain userModel.UserDomainI
 	log.Println("Calling repository to create user")
 	userDomainRepository, err := ud.userRepository.CreateUser(userDomain)
 	if err != nil {
-		log.Println("Error in repository:", err)
+		log.Println("Error while creating user in repository:", err)
 		return nil, err
 	}
 
 	if userDomainRepository == nil {
 		log.Println("Error: userDomainRepository is nil")
-		return nil, rest_err.NewInternalServerError("Failed to create user in repository")
+		return nil, rest_err.NewInternalServerError("failed to create user in repository")
 	}
 
 	log.Println("User created successfully")
-
 	return userDomainRepository, nil
 }

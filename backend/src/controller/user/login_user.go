@@ -29,7 +29,7 @@ func (uc *userControllerInterface) LoginUser(c *gin.Context) {
 
 	domainResult, token, err := uc.service.LoginUserServices(domain)
 	if err != nil {
-		log.Println("Error trying to call service:")
+		log.Println("Error calling login service:", err)
 		c.JSON(err.Code, err)
 		return
 	}

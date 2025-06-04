@@ -9,15 +9,15 @@ import (
 
 func (pd *projectDomainService) UpdateProject(projectId string, projectDomain projectModel.ProjectDomainInterface) *rest_err.RestErr {
 
-	log.Println("Calling repository to update project")
+	log.Printf("Attempting to update project with ID: %s\n", projectId)
 
 	err := pd.projectRepository.UpdateProject(projectId, projectDomain)
 	if err != nil {
-		log.Println("Error in repository:", err)
+		log.Printf("Repository error while updating project with ID %s: %v\n", projectId, err)
 		return err
 	}
 
-	log.Println("Project updated successfully")
+	log.Printf("Project with ID %s updated successfully\n", projectId)
 
 	return nil
 }

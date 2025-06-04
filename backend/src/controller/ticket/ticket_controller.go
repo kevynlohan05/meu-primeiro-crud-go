@@ -5,6 +5,7 @@ import (
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/model/ticket/service"
 )
 
+// NewTicketController returns a new TicketController implementation
 func NewTicketControllerInterface(serviceInterface service.TicketDomainService) TicketControllerInterface {
 	return &ticketControllerInterface{
 		service: serviceInterface,

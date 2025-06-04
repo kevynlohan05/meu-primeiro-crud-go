@@ -9,7 +9,7 @@ import (
 )
 
 func (tc *ticketControllerInterface) DeleteTicket(c *gin.Context) {
-	log.Println("Init DeleteTicket controller")
+	log.Println("Start DeleteTicket controller")
 
 	ticketId := c.Param("ticketId")
 	if ticketId == "" {
@@ -20,10 +20,10 @@ func (tc *ticketControllerInterface) DeleteTicket(c *gin.Context) {
 
 	err := tc.service.DeleteTicket(ticketId)
 	if err != nil {
-		log.Println("Error update ticket:", err)
+		log.Println("Error deleting ticket:", err)
 		c.JSON(err.Code, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Comment deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Ticket deleted successfully"})
 }

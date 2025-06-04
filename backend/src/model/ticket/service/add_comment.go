@@ -12,7 +12,7 @@ func (td *ticketDomainService) AddComment(ticketId string, comment ticketModel.C
 
 	err := td.ticketRepository.AddComment(ticketId, comment)
 	if err != nil {
-		log.Println("Error in repository:", err)
+		log.Println("Repository error:", err)
 		return err
 	}
 

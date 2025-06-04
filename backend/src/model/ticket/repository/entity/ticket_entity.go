@@ -8,7 +8,7 @@ type TicketEntity struct {
 	Description    string `json:"description"`
 	RequestType    string `json:"request_type"`
 	Priority       string `json:"priority"`
-	AttachmentURLs string `json:"attachment_urls"` // armazenado como JSON ou string separada
+	AttachmentURLs string `json:"attachment_urls"`
 	Status         string `json:"status"`
 	AsanaTaskID    string `json:"asana_task_id"`
 	ProjectID      int64  `json:"project_id"`

@@ -20,7 +20,7 @@ var (
 	ASANA_ACCESS_TOKEN = "ASANA_ACCESS_TOKEN"
 )
 
-// Estrutura para o payload da task
+// Structure for task payload
 type AsanaTaskRequest struct {
 	Data AsanaTaskData `json:"data"`
 }
@@ -31,18 +31,18 @@ type AsanaTaskData struct {
 	Projects []string `json:"projects"`
 }
 
-// Criação da tarefa no Asana
+// Create a task in Asana
 func CreateAsanaTask(ticket ticketModel.TicketDomainInterface) (string, error) {
 	projectID := ticket.GetAsanaProjectID()
 	if projectID == "" {
-		return "", fmt.Errorf("asanaProjectID está vazio")
+		return "", fmt.Errorf("asanaProjectID is empty")
 	}
 
 	token := os.Getenv(ASANA_ACCESS_TOKEN)
 
-	// Monta a descrição completa com todas as informações
+	// Compose the full description with all information
 	notes := fmt.Sprintf(
-		"Título da solicitação: \n%s\n\nEmail do solicitante: \n%s\n\nSetor do solicitante: \n%s\n\nDetalhe da solicitação: \n%s\n\nTipo de solicitação: \n%s\n\nPrioridade: \n%s",
+		"Request title: \n%s\n\nRequester email: \n%s\n\nRequester sector: \n%s\n\nRequest details: \n%s\n\nRequest type: \n%s\n\nPriority: \n%s",
 		ticket.GetTitle(),
 		ticket.GetRequestUser(),
 		ticket.GetSector(),
@@ -81,12 +81,12 @@ func CreateAsanaTask(ticket ticketModel.TicketDomainInterface) (string, error) {
 
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	// Se deu erro
+	// If error occurred
 	if resp.StatusCode != http.StatusCreated {
-		return "", fmt.Errorf("erro ao criar tarefa: %s", string(body))
+		return "", fmt.Errorf("error creating task: %s", string(body))
 	}
 
-	// Parse do ID da task criada
+	// Parse the created task ID
 	var result map[string]interface{}
 	json.Unmarshal(body, &result)
 
@@ -129,14 +129,14 @@ func GetAsanaTaskDetails(taskID string) (string, []string, error) {
 
 	body, _ := ioutil.ReadAll(resp.Body)
 	if resp.StatusCode != http.StatusOK {
-		return "", nil, fmt.Errorf("erro ao buscar tarefa: %s", string(body))
+		return "", nil, fmt.Errorf("error fetching task: %s", string(body))
 	}
 
 	var result AsanaTaskResponse
 	json.Unmarshal(body, &result)
 
-	// Nome da seção atual
-	status := "Indefinido"
+	// Current section name
+	status := "Undefined"
 	if len(result.Data.Memberships) > 0 {
 		status = result.Data.Memberships[0].Section.Name
 	}
@@ -147,39 +147,39 @@ func GetAsanaTaskDetails(taskID string) (string, []string, error) {
 func UploadAttachmentToAsana(taskID string, filePath string) error {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return fmt.Errorf("erro ao abrir arquivo: %v", err)
+		return fmt.Errorf("error opening file: %v", err)
 	}
 	defer file.Close()
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
-	// Detecta o Content-Type com base na extensão do arquivo
+	// Detect Content-Type based on file extension
 	contentType := mime.TypeByExtension(filepath.Ext(file.Name()))
 	if contentType == "" {
-		contentType = "application/octet-stream" // fallback genérico
+		contentType = "application/octet-stream" // generic fallback
 	}
 
-	// Cria o cabeçalho da parte com Content-Type apropriado
+	// Create part header with appropriate Content-Type
 	header := textproto.MIMEHeader{}
 	header.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file"; filename="%s"`, filepath.Base(file.Name())))
 	header.Set("Content-Type", contentType)
 
 	part, err := writer.CreatePart(header)
 	if err != nil {
-		return fmt.Errorf("erro ao criar parte do arquivo: %v", err)
+		return fmt.Errorf("error creating file part: %v", err)
 	}
 
 	_, err = io.Copy(part, file)
 	if err != nil {
-		return fmt.Errorf("erro ao copiar conteúdo do arquivo: %v", err)
+		return fmt.Errorf("error copying file content: %v", err)
 	}
 
 	writer.Close()
 
 	req, err := http.NewRequest("POST", "https://app.asana.com/api/1.0/tasks/"+taskID+"/attachments", body)
 	if err != nil {
-		return fmt.Errorf("erro ao criar requisição de upload: %v", err)
+		return fmt.Errorf("error creating upload request: %v", err)
 	}
 
 	req.Header.Set("Authorization", "Bearer "+os.Getenv(ASANA_ACCESS_TOKEN))
@@ -188,13 +188,13 @@ func UploadAttachmentToAsana(taskID string, filePath string) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("erro ao enviar requisição: %v", err)
+		return fmt.Errorf("error sending request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	respBody, _ := ioutil.ReadAll(resp.Body)
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
-		return fmt.Errorf("falha no upload: %s", string(respBody))
+		return fmt.Errorf("upload failed: %s", string(respBody))
 	}
 
 	return nil

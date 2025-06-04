@@ -21,7 +21,7 @@ func (uc *userControllerInterface) DeleteUser(c *gin.Context) {
 
 	err := uc.service.DeleteUser(userId)
 	if err != nil {
-		log.Println("Error delete user:", err)
+		log.Println("Error deleting user:", err)
 		c.JSON(err.Code, err)
 		return
 	}

@@ -38,7 +38,7 @@ func ConvertTicketDomainToEntity(domain ticketModel.TicketDomainInterface) *tick
 	attachmentURLsJSON, err := json.Marshal(domain.GetAttachmentURLs())
 	if err != nil {
 		log.Printf("Error marshaling attachment URLs: %v\n", err)
-		attachmentURLsJSON = []byte("[]") // fallback vazio
+		attachmentURLsJSON = []byte("[]") // fallback to empty
 	}
 
 	entity := &ticketEntity.TicketEntity{

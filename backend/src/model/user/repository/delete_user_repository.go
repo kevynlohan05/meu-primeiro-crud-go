@@ -8,27 +8,27 @@ import (
 )
 
 func (ur *userRepository) DeleteUser(userId string) *rest_err.RestErr {
-	log.Println("Deleting user in MySQL with id:", userId)
+	log.Printf("Attempting to delete user with ID: %s", userId)
 
 	query := `DELETE FROM users WHERE id = ?`
 
 	result, err := ur.db.Exec(query, userId)
 	if err != nil {
-		log.Println("Error deleting user from MySQL:", err)
+		log.Printf("Error while deleting user from database: %v", err)
 		return rest_err.NewInternalServerError(fmt.Sprintf("Error deleting user: %v", err))
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		log.Println("Error getting affected rows:", err)
+		log.Printf("Error retrieving affected rows after delete: %v", err)
 		return rest_err.NewInternalServerError("Error verifying delete operation")
 	}
 
 	if rowsAffected == 0 {
-		log.Println("No user found with id:", userId)
-		return rest_err.NewNotFoundError(fmt.Sprintf("User with id %s not found", userId))
+		log.Printf("No user found with ID: %s", userId)
+		return rest_err.NewNotFoundError(fmt.Sprintf("User with ID %s not found", userId))
 	}
 
-	log.Println("User deleted successfully from MySQL")
+	log.Println("User successfully deleted")
 	return nil
 }

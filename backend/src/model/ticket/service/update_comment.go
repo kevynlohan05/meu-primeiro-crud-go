@@ -27,25 +27,25 @@ func (td *ticketDomainService) UpdateComment(ticketId, commentId, email string, 
 
 	commentsUser, RestErr := td.ticketRepository.FindCommentsByEmail(email)
 	if RestErr != nil {
-		log.Println("Error finding comments by user:", err)
+		log.Println("Error retrieving comments by user:", RestErr)
 		return rest_err.NewInternalServerError("Error retrieving comments")
 	}
 
 	var commentFound bool
-	for _, comment := range commentsUser {
-		if comment.ID == commentIDInt && comment.TicketID == ticketIDInt {
+	for _, c := range commentsUser {
+		if c.ID == commentIDInt && c.TicketID == ticketIDInt {
 			commentFound = true
 			break
 		}
 	}
 	if !commentFound {
-		log.Println("Comment not found or user not authorized to delete it")
-		return rest_err.NewNotFoundError("Comment not found or user not authorized to delete it")
+		log.Println("Comment not found or user not authorized to update it")
+		return rest_err.NewNotFoundError("Comment not found or user not authorized to update it")
 	}
 
 	RestErr = td.ticketRepository.UpdateComment(ticketId, commentId, comment.GetContent())
 	if RestErr != nil {
-		log.Println("Error in repository:", RestErr)
+		log.Println("Repository error while updating comment:", RestErr)
 		return RestErr
 	}
 

@@ -37,7 +37,7 @@ func (uc *userControllerInterface) UpdateUser(c *gin.Context) {
 
 	err := uc.service.UpdateUser(userId, domain)
 	if err != nil {
-		log.Println("Error update user:", err)
+		log.Println("Error updating user:", err)
 		c.JSON(err.Code, err)
 		return
 	}
