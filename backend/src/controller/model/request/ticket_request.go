@@ -22,3 +22,7 @@ type TicketUpdateRequest struct {
 type AddCommentRequest struct {
 	Content string `json:"content" binding:"required"`
 }
+
+type UpdateCommentRequest struct {
+	Content string `json:"content" binding:"required"`
+}

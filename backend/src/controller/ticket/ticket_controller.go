@@ -14,6 +14,7 @@ func NewTicketControllerInterface(serviceInterface service.TicketDomainService) 
 type TicketControllerInterface interface {
 	CreateTicket(c *gin.Context)
 	UpdateTicket(c *gin.Context)
+	UpdateComment(c *gin.Context)
 	DeleteTicket(c *gin.Context)
 	DeleteComment(c *gin.Context)
 	FindTicketById(c *gin.Context)

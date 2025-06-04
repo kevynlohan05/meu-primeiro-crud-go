@@ -22,6 +22,7 @@ type TicketRepository interface {
 	UpdateTicket(ticketId string, ticketDomain ticketModel.TicketDomainInterface) *rest_err.RestErr
 	UpdateAsanaTaskID(ticketId string, taskID string) *rest_err.RestErr
 	UpdateTicketStatus(ticketId string, status string) *rest_err.RestErr
+	UpdateComment(ticketId string, commentId string, content string) *rest_err.RestErr
 	DeleteTicket(ticketId string) *rest_err.RestErr
 	DeleteComment(ticketId string, commentId string) *rest_err.RestErr
 	FindAllTicketsByEmail(email string) ([]ticketModel.TicketDomainInterface, *rest_err.RestErr)

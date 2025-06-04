@@ -25,6 +25,10 @@ type CommentDomain struct {
 	CreatedAt int64
 }
 
+func (td *CommentDomain) GetContent() string {
+	return td.Content
+}
+
 func (td *ticketDomain) SetProjectName(projectName string) {
 	td.projectName = projectName
 }
