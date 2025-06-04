@@ -1,0 +1,5 @@
+CREATE TABLE projects (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    asana_project_id VARCHAR(45) NOT NULL UNIQUE
+);
