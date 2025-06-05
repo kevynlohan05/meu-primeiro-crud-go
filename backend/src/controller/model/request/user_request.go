@@ -8,7 +8,7 @@ type UserRequest struct {
 	Department string   `json:"department" binding:"required"`
 	Projects   []string `json:"projects" binding:"required"`
 	Enterprise string   `json:"enterprise" binding:"required"`
-	Role       string   `json:"role" binding:"required"` // "admin" ou "user"
+	Role       string   `json:"role" binding:"required"`
 }
 
 type UserUpdateRequest struct {

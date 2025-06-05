@@ -10,9 +10,9 @@ import (
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/view"
 )
 
-// FindProjectById handles the retrieval of a project by its ID.
+// FindProjectById handles retrieving a project by its unique ID.
 func (pc *projectControllerInterface) FindProjectById(c *gin.Context) {
-	log.Println("[FindProjectById] Init")
+	log.Println("[FindProjectById] Starting controller")
 
 	projectId := c.Param("projectId")
 
@@ -25,17 +25,17 @@ func (pc *projectControllerInterface) FindProjectById(c *gin.Context) {
 
 	if projectDomain == nil {
 		log.Println("[FindProjectById] Project not found:", projectId)
-		c.JSON(http.StatusNotFound, rest_err.NewNotFoundError("Projeto não encontrado"))
+		c.JSON(http.StatusNotFound, rest_err.NewNotFoundError("Project not found"))
 		return
 	}
 
-	log.Println("[FindProjectById] Project found:", projectId)
+	log.Println("[FindProjectById] Project retrieved successfully:", projectId)
 	c.JSON(http.StatusOK, view.ConvertProjectDomainToResponse(projectDomain))
 }
 
-// FindProjectByName handles the retrieval of a project by its name.
+// FindProjectByName handles retrieving a project by its name.
 func (pc *projectControllerInterface) FindProjectByName(c *gin.Context) {
-	log.Println("[FindProjectByName] Init")
+	log.Println("[FindProjectByName] Starting controller")
 
 	projectName := c.Param("projectName")
 
@@ -48,17 +48,17 @@ func (pc *projectControllerInterface) FindProjectByName(c *gin.Context) {
 
 	if projectDomain == nil {
 		log.Println("[FindProjectByName] Project not found:", projectName)
-		c.JSON(http.StatusNotFound, rest_err.NewNotFoundError("Projeto não encontrado"))
+		c.JSON(http.StatusNotFound, rest_err.NewNotFoundError("Project not found"))
 		return
 	}
 
-	log.Println("[FindProjectByName] Project found:", projectName)
+	log.Println("[FindProjectByName] Project retrieved successfully:", projectName)
 	c.JSON(http.StatusOK, view.ConvertProjectDomainToResponse(projectDomain))
 }
 
-// FindAllProjects handles the retrieval of all registered projects.
+// FindAllProjects handles retrieving all registered projects in the system.
 func (pc *projectControllerInterface) FindAllProjects(c *gin.Context) {
-	log.Println("[FindAllProjects] Init")
+	log.Println("[FindAllProjects] Starting controller")
 
 	projects, err := pc.service.FindAllProjectsServices()
 	if err != nil {
@@ -69,11 +69,11 @@ func (pc *projectControllerInterface) FindAllProjects(c *gin.Context) {
 
 	if len(projects) == 0 {
 		log.Println("[FindAllProjects] No projects found")
-		c.JSON(http.StatusNotFound, rest_err.NewNotFoundError("Nenhum projeto encontrado"))
+		c.JSON(http.StatusNotFound, rest_err.NewNotFoundError("No projects found"))
 		return
 	}
 
-	log.Printf("[FindAllProjects] %d projects found\n", len(projects))
+	log.Printf("[FindAllProjects] %d projects retrieved successfully\n", len(projects))
 
 	var projectsResponse []response.ProjectResponse
 	for _, project := range projects {

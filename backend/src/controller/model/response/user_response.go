@@ -8,5 +8,5 @@ type UserResponse struct {
 	Enterprise string   `json:"enterprise"`
 	Department string   `json:"department"`
 	Projects   []string `json:"projects"`
-	Role       string   `json:"role"` // "admin" ou "user"
+	Role       string   `json:"role"`
 }
