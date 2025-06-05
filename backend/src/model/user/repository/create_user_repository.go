@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"database/sql"
+	"errors"
 	"log"
 
 	"github.com/kevynlohan05/meu-primeiro-crud-go/src/configuration/rest_err"
@@ -11,6 +13,21 @@ import (
 func (ur *userRepository) CreateUser(userDomain userModel.UserDomainInterface) (userModel.UserDomainInterface, *rest_err.RestErr) {
 	log.Println("Converting domain to entity")
 	value := converter.ConvertUserDomainToEntity(userDomain)
+
+	projectIDs := make([]int, 0, len(userDomain.GetProjects()))
+	for _, projectName := range userDomain.GetProjects() {
+		var projectID int
+		err := ur.db.QueryRow("SELECT id FROM projects WHERE name = ?", projectName).Scan(&projectID)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				log.Printf("Project '%s' not found, aborting user creation\n", projectName)
+				return nil, rest_err.NewBadRequestError("Project '" + projectName + "' does not exist")
+			}
+			log.Println("Error checking project existence:", err)
+			return nil, rest_err.NewInternalServerError("Error while validating project list")
+		}
+		projectIDs = append(projectIDs, projectID)
+	}
 
 	query := `
 		INSERT INTO users (name, email, password, phone, enterprise, department, role)
@@ -38,30 +55,10 @@ func (ur *userRepository) CreateUser(userDomain userModel.UserDomainInterface) (
 	}
 	value.ID = int(insertedID)
 
-	for _, projectName := range userDomain.GetProjects() {
-		var projectID int
-
-		// Check if project already exists
-		err := ur.db.QueryRow("SELECT id FROM projects WHERE name = ?", projectName).Scan(&projectID)
-		if err != nil {
-			// Create project if not exists
-			res, err := ur.db.Exec("INSERT INTO projects (name) VALUES (?)", projectName)
-			if err != nil {
-				log.Println("Error inserting project:", err)
-				continue
-			}
-			lastID, err := res.LastInsertId()
-			if err != nil {
-				log.Println("Error retrieving project ID:", err)
-				continue
-			}
-			projectID = int(lastID)
-		}
-
-		// Associate user with project
+	for _, projectID := range projectIDs {
 		_, err = ur.db.Exec("INSERT INTO user_projects (user_id, project_id) VALUES (?, ?)", insertedID, projectID)
 		if err != nil {
-			log.Println("Error inserting into user_projects:", err)
+			log.Printf("Error associating user with project ID %d: %v\n", projectID, err)
 			continue
 		}
 	}
